@@ -1,0 +1,16 @@
+{
+  "name": "خطة التدريب — 3 أشهر",
+  "short_name": "خطة التدريب",
+  "description": "خطة تدريب 3 أشهر لخسارة الدهون والحفاظ على العضلات مع متابعة InBody.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#08111d",
+  "theme_color": "#0b1a2b",
+  "icons": [
+    { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

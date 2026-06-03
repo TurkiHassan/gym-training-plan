@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>قياس InBody | خطة التدريب</title>
+  <meta name="description" content="تقرير InBody: الوزن، الكتلة العضلية، نسبة الدهون، ونقاط القياس — مع متابعة شهرية.">
+  <meta name="theme-color" content="#0b1a2b">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <script>try{var t=JSON.parse(localStorage.getItem('theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-day="inbody">
+  <header class="nav">
+    <div class="wrap nav-in">
+      <a class="brand" href="index.html">
+        <span class="mark"><svg width="22" height="22" viewBox="0 0 512 512" fill="currentColor"><rect x="78" y="216" width="40" height="80" rx="12"/><rect x="122" y="186" width="44" height="140" rx="14"/><rect x="346" y="186" width="44" height="140" rx="14"/><rect x="394" y="216" width="40" height="80" rx="12"/><rect x="166" y="240" width="180" height="32" rx="16"/></svg></span>
+        <span>خطة التدريب<small>Fitness Time · 3 أشهر</small></span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html">الرئيسية</a>
+        <a href="push.html">الدفع</a>
+        <a href="pull.html">السحب</a>
+        <a href="legs.html">الأرجل</a>
+        <a href="upper.html">العلوي</a>
+        <a href="inbody.html">InBody</a>
+      </nav>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="تبديل الوضع"></button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="workout-head">
+      <div data-reveal>
+        <p class="eyebrow">Monthly InBody Update</p>
+        <h1 class="display">قياس InBody</h1>
+        <p class="lead">تتبّع رحلتك بدقّة — أجرِ قياس InBody كل 4 أسابيع لمراقبة الوزن والعضلات ونسبة الدهون. آخر قياس: 2026.04.18.</p>
+      </div>
+      <div class="kpis" data-reveal>
+        <div class="kpi"><b>172</b><span>الطول (سم)</span></div>
+        <div class="kpi"><b>42</b><span>العمر</span></div>
+        <div class="kpi"><b>InBody270</b><span>الجهاز</span></div>
+      </div>
+    </section>
+
+    <!-- top: score + key stats -->
+    <section class="cards c4" style="margin-top:28px; align-items:start">
+      <div class="card score-card" data-reveal>
+        <div class="score-ring" style="--p:69"><div><b>69</b><span>InBody Score</span></div></div>
+        <p style="margin-top:4px">تقييم عام من 100</p>
+      </div>
+      <div class="stat" data-reveal>
+        <div class="v">67.5<small> كجم</small></div>
+        <div class="k">الوزن</div>
+        <div class="range">النطاق الطبيعي: 56.3–74.0</div>
+      </div>
+      <div class="stat" data-reveal>
+        <div class="v">28.4<small> كجم</small></div>
+        <div class="k">الكتلة العضلية الهيكلية (SMM)</div>
+        <div class="bar"><i style="width:70%"></i></div>
+        <div class="range">ضمن النطاق الطبيعي</div>
+      </div>
+      <div class="stat" data-reveal>
+        <div class="v">24.6<small> %</small></div>
+        <div class="k">نسبة الدهون (PBF)</div>
+        <div class="bar"><i style="width:62%"></i></div>
+        <div class="range">الهدف: خفضها تدريجياً</div>
+      </div>
+    </section>
+
+    <!-- body composition -->
+    <section class="section" style="padding-top:48px">
+      <p class="eyebrow" data-reveal>Body Composition</p>
+      <h2 class="section-title" data-reveal>تحليل مكونات الجسم</h2>
+      <div class="cards c4" style="margin-top:24px">
+        <div class="stat" data-reveal><div class="v">37.3<small> لتر</small></div><div class="k">ماء الجسم الكلي</div><div class="range">36.0–44.0</div></div>
+        <div class="stat" data-reveal><div class="v">10.0<small> كجم</small></div><div class="k">البروتين</div><div class="range">9.6–12.0</div></div>
+        <div class="stat" data-reveal><div class="v">3.61<small> كجم</small></div><div class="k">المعادن</div><div class="range">3.39–4.14</div></div>
+        <div class="stat" data-reveal><div class="v">16.6<small> كجم</small></div><div class="k">كتلة الدهون</div><div class="range">7.9–15.8</div></div>
+      </div>
+    </section>
+
+    <!-- weight control + indicators -->
+    <section class="section" style="padding-top:8px">
+      <div class="cards c2" style="align-items:start">
+        <div class="panel" data-reveal>
+          <h2>التحكم بالوزن</h2>
+          <div class="cards c3" style="margin-top:6px">
+            <div class="stat"><div class="v">65.1<small> كجم</small></div><div class="k">الوزن المستهدف</div></div>
+            <div class="stat"><div class="v" style="color:#e08b6a">-2.4<small> كجم</small></div><div class="k">تعديل الوزن</div></div>
+            <div class="stat"><div class="v" style="color:#e08b6a">-4.6<small> كجم</small></div><div class="k">تقليل الدهون</div></div>
+          </div>
+          <ul class="note-list" style="margin-top:18px">
+            <li>الهدف خفض الدهون مع الحفاظ على العضلات قدر الإمكان.</li>
+            <li>أعد القياس بعد 4 أسابيع لرصد التغيّر.</li>
+          </ul>
+        </div>
+        <div class="panel" data-reveal>
+          <h2>مؤشرات إضافية</h2>
+          <div class="cards c3" style="margin-top:6px">
+            <div class="stat"><div class="v">22.8</div><div class="k">مؤشر كتلة الجسم BMI</div><div class="range">18.5–25.0</div></div>
+            <div class="stat"><div class="v">0.85</div><div class="k">نسبة الخصر/الورك</div><div class="range">0.80–0.90</div></div>
+            <div class="stat"><div class="v">6</div><div class="k">مستوى الدهون الحشوية</div><div class="range">طبيعي (1–9)</div></div>
+          </div>
+          <ul class="note-list" style="margin-top:18px">
+            <li>الدهون الحشوية ضمن المستوى الآمن — حافظ عليها.</li>
+            <li>BMI ضمن النطاق الطبيعي.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="hero-cta" data-reveal style="margin-top:8px">
+      <a class="btn btn-gold" href="Inbody.pdf" target="_blank" rel="noopener">التقرير الأصلي (PDF) ↓</a>
+      <a class="btn btn-ghost" href="index.html">الرئيسية</a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-grid">
+      <div class="muted">قياس InBody — آخر تحديث 2026.04.18 · Fitness Time 2026</div>
+      <div class="contact"><div><span>SOCIAL</span>@fitnesstime</div></div>
+    </div>
+  </footer>
+
+  <script src="assets/app.js" defer></script>
+</body>
+</html>

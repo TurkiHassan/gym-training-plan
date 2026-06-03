@@ -1,0 +1,146 @@
+{
+  "push-1": {
+    "dataset_id": "0577",
+    "dataset_name": "lever chest press",
+    "reason": "lever chest press — hammer-strength flat machine",
+    "animation": "/exercises/animations/chest-hammer-press.gif",
+    "thumbnail": "/exercises/thumbnails/chest-hammer-press.jpg",
+    "gif_ok": true,
+    "jpg_ok": true
+  },
+  "push-2": {
+    "dataset_id": "0188",
+    "dataset_name": "cable middle fly",
+    "reason": "cable middle fly — chest fly machine",
+    "animation": "/exercises/animations/chest-fly-machine.gif",
+    "thumbnail": "/exercises/thumbnails/chest-fly-machine.jpg",
+    "gif_ok": true,
+    "jpg_ok": true
+  },
+  "push-3": {
+    "dataset_id": "0178",
+    "dataset_name": "cable lateral raise",
+    "reason": "cable lateral raise — perfect match",
+    "animation": "/exercises/animations/cable-lateral-raise.gif",
+    "thumbnail": "/exercises/thumbnails/cable-lateral-raise.jpg",
+    "gif_ok": true,
+    "jpg_ok": true
+  },
+  "push-4": {
+    "dataset_id": "0241",
+    "dataset_name": "cable triceps pushdown (v-bar)",
+    "reason": "cable triceps pushdown (v-bar) — closest to rope pushdown",
+    "animation": "/exercises/animations/cable-tricep-pushdown.gif",
+    "thumbnail": "/exercises/thumbnails/cable-tricep-pushdown.jpg",
+    "gif_ok": true,
+    "jpg_ok": true
+  },
+  "pull-1": {
+    "dataset_id": "2330",
+    "dataset_name": "cable lat pulldown full range of motion",
+    "reason": "cable lat pulldown full range of motion — perfect match",
+    "animation": "/exercises/animations/lat-pulldown.gif",
+    "thumbnail": "/exercises/thumbnails/lat-pulldown.jpg",
+    "gif_ok": true,
+    "jpg_ok": true
+  },
+  "pull-2": {
+    "dataset_id": "1349",
+    "dataset_name": "lever reverse t-bar row",
+    "reason": "lever reverse t-bar row — closest to T-bar wide",
+    "animation": "/exercises/animations/t-bar-row.gif",
+    "thumbnail": "/exercises/thumbnails/t-bar-row.jpg",
+    "gif_ok": true,
+    "jpg_ok": true
+  },
+  "pull-3": {
+    "dataset_id": "0215",
+    "dataset_name": "cable seated rear lateral raise",
+    "reason": "cable seated rear lateral raise — rear delt cable",
+    "animation": "/exercises/animations/rear-delt-machine.gif",
+    "thumbnail": "/exercises/thumbnails/rear-delt-machine.jpg",
+    "gif_ok": true,
+    "jpg_ok": true
+  },
+  "pull-4": {
+    "dataset_id": "0285",
+    "dataset_name": "dumbbell alternate biceps curl",
+    "reason": "dumbbell alternate biceps curl — seated alternating curl",
+    "animation": "/exercises/animations/seated-alternating-curl.gif",
+    "thumbnail": "/exercises/thumbnails/seated-alternating-curl.jpg",
+    "gif_ok": true,
+    "jpg_ok": true
+  },
+  "legs-1": {
+    "dataset_id": "0743",
+    "dataset_name": "sled hack squat",
+    "reason": "sled hack squat — perfect match",
+    "animation": "/exercises/animations/hack-squat.gif",
+    "thumbnail": "/exercises/thumbnails/hack-squat.jpg",
+    "gif_ok": true,
+    "jpg_ok": true
+  },
+  "legs-2": {
+    "dataset_id": "0410",
+    "dataset_name": "dumbbell single leg split squat",
+    "reason": "dumbbell single leg split squat — closest to Bulgarian",
+    "animation": "/exercises/animations/bulgarian-split-squat.gif",
+    "thumbnail": "/exercises/thumbnails/bulgarian-split-squat.jpg",
+    "gif_ok": true,
+    "jpg_ok": true
+  },
+  "legs-3": {
+    "dataset_id": "0586",
+    "dataset_name": "lever lying leg curl",
+    "reason": "lever lying leg curl — perfect match",
+    "animation": "/exercises/animations/lying-leg-curl.gif",
+    "thumbnail": "/exercises/thumbnails/lying-leg-curl.jpg",
+    "gif_ok": true,
+    "jpg_ok": true
+  },
+  "legs-4": {
+    "dataset_id": "0088",
+    "dataset_name": "barbell seated calf raise",
+    "reason": "barbell seated calf raise — perfect match",
+    "animation": "/exercises/animations/seated-calf-raise.gif",
+    "thumbnail": "/exercises/thumbnails/seated-calf-raise.jpg",
+    "gif_ok": true,
+    "jpg_ok": true
+  },
+  "upper-1": {
+    "dataset_id": "1299",
+    "dataset_name": "lever incline chest press",
+    "reason": "lever incline chest press — hammer strength incline",
+    "animation": "/exercises/animations/upper-chest-hammer.gif",
+    "thumbnail": "/exercises/thumbnails/upper-chest-hammer.jpg",
+    "gif_ok": true,
+    "jpg_ok": true
+  },
+  "upper-2": {
+    "dataset_id": "0198",
+    "dataset_name": "cable pulldown",
+    "reason": "cable pulldown — single arm cable pulldown variant",
+    "animation": "/exercises/animations/single-arm-pulldown.gif",
+    "thumbnail": "/exercises/thumbnails/single-arm-pulldown.jpg",
+    "gif_ok": true,
+    "jpg_ok": true
+  },
+  "upper-3": {
+    "dataset_id": "0334",
+    "dataset_name": "dumbbell lateral raise",
+    "reason": "dumbbell lateral raise — perfect match",
+    "animation": "/exercises/animations/lateral-raise-machine.gif",
+    "thumbnail": "/exercises/thumbnails/lateral-raise-machine.jpg",
+    "gif_ok": true,
+    "jpg_ok": true
+  },
+  "upper-4": {
+    "dataset_id": "0285",
+    "dataset_name": "dumbbell alternate biceps curl",
+    "reason": "dumbbell alternate biceps curl — bicep component of superset",
+    "animation": "/exercises/animations/arm-superset.gif",
+    "thumbnail": "/exercises/thumbnails/arm-superset.jpg",
+    "gif_ok": true,
+    "jpg_ok": true
+  }
+}
