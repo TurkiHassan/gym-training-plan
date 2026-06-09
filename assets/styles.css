@@ -215,7 +215,16 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
 .frame .frame-cap {
   position: absolute; inset-inline: 18px; bottom: 16px; display: flex; justify-content: space-between;
   font-family: var(--serif); letter-spacing: .12em; font-size: 12px; color: var(--muted);
+  z-index: 2;
 }
+/* real-photo hero frame (screenshot style) */
+.photo-frame { padding: 0; }
+.photo-frame img { width: 100%; height: 100%; min-height: 340px; object-fit: cover; }
+.photo-frame::before {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(180deg, rgba(8,17,29,0) 45%, rgba(8,17,29,.78) 100%);
+}
+.photo-frame .frame-cap span { color: var(--cream); text-shadow: 0 2px 12px rgba(0,0,0,.6); }
 
 .btn {
   display: inline-flex; align-items: center; gap: 9px; padding: 13px 24px; border-radius: 999px;
@@ -442,8 +451,96 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
 [data-reveal] { opacity: 0; transform: translateY(18px); transition: opacity .6s, transform .6s; }
 [data-reveal].in { opacity: 1; transform: none; }
 
+/* ---------- Feature cards (home → instructors / nutrition) --------------- */
+.feature {
+  display: block; border-radius: var(--radius-lg); overflow: hidden;
+  border: 1px solid var(--line); background: var(--surface);
+  box-shadow: var(--shadow-sm); transition: border-color .2s, transform .2s;
+}
+.feature:hover { border-color: rgba(201,169,106,.4); transform: translateY(-3px); }
+.feature-img { position: relative; aspect-ratio: 16 / 9; overflow: hidden; }
+.feature-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.feature:hover .feature-img img { transform: scale(1.05); }
+.feature-img::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(8,17,29,0) 50%, rgba(8,17,29,.55) 100%);
+}
+.feature-body { padding: 22px 24px 26px; }
+.feature-body h3 { font-family: var(--ar-display); font-size: 24px; margin: 4px 0 8px; }
+.feature-body p { margin: 0; color: var(--muted); font-size: 15px; }
+.feature-body .go { display: inline-block; margin-top: 14px; color: var(--gold-2); font-weight: 700; font-size: 14px; }
+
+/* ---------- Instructors / coaches ---------------------------------------- */
+.coach-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 28px; }
+.coach {
+  display: flex; flex-direction: column; overflow: hidden;
+  border: 1px solid var(--line); border-radius: var(--radius-lg);
+  background: var(--surface); box-shadow: var(--shadow-sm);
+  transition: border-color .2s, transform .2s;
+}
+.coach:hover { border-color: rgba(201,169,106,.4); transform: translateY(-3px); }
+.coach-photo { position: relative; aspect-ratio: 5 / 4; overflow: hidden; }
+.coach-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.coach:hover .coach-photo img { transform: scale(1.05); }
+.coach-photo::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(8,17,29,0) 55%, rgba(8,17,29,.7) 100%);
+}
+.coach-tag {
+  position: absolute; inset-block-start: 14px; inset-inline-start: 14px; z-index: 2;
+  font-size: 12px; font-weight: 700; color: #1a1407; padding: 5px 12px; border-radius: 999px;
+  background: linear-gradient(145deg, var(--gold-2), var(--gold)); box-shadow: 0 6px 16px rgba(201,169,106,.35);
+}
+.coach-body { padding: 20px 22px 24px; }
+.coach-body h3 { font-size: 22px; }
+.coach-role { color: var(--gold); font-weight: 700; font-size: 13.5px; margin: 6px 0 10px; }
+.coach-body p { margin: 0; color: var(--muted); font-size: 14.5px; }
+.coach-stats { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.coach-stats span { font-size: 12.5px; color: var(--muted); }
+.coach-stats b { display: block; font-family: var(--serif); font-size: 19px; color: var(--gold-2); line-height: 1.1; }
+
+/* ---------- Nutrition / meals -------------------------------------------- */
+.meal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 28px; }
+.meal {
+  display: flex; flex-direction: column; overflow: hidden;
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface);
+  box-shadow: var(--shadow-sm); transition: border-color .2s, transform .2s;
+}
+.meal:hover { border-color: rgba(201,169,106,.4); transform: translateY(-3px); }
+.meal-img { position: relative; aspect-ratio: 4 / 3; overflow: hidden; }
+.meal-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.meal:hover .meal-img img { transform: scale(1.05); }
+.meal-kcal {
+  position: absolute; inset-block-start: 12px; inset-inline-end: 12px; z-index: 2;
+  font-size: 12px; font-weight: 700; color: var(--cream);
+  background: rgba(8,17,29,.7); backdrop-filter: blur(6px);
+  padding: 5px 11px; border-radius: 999px; border: 1px solid var(--line-2);
+}
+.meal-body { padding: 18px 20px 20px; flex: 1; display: flex; flex-direction: column; }
+.meal-body h3 { font-size: 19px; }
+.meal-body p { margin: 8px 0 0; color: var(--muted); font-size: 14px; flex: 1; }
+.macros { display: flex; gap: 8px; margin-top: 16px; }
+.macro {
+  flex: 1; text-align: center; font-size: 11.5px; color: var(--muted);
+  padding: 8px 4px; border-radius: 11px; border: 1px solid var(--line); background: var(--fill-soft);
+}
+.macro b { display: block; font-family: var(--serif); font-size: 17px; color: var(--cream); line-height: 1.15; margin-bottom: 2px; }
+.macro.p b { color: #6fd3a3; }
+.macro.c b { color: var(--gold-2); }
+.macro.f b { color: #e0a878; }
+
+/* daily plan split panel */
+.diet-plan { display: grid; grid-template-columns: 1.3fr .7fr; gap: 28px; align-items: center; }
+.diet-copy h2 { font-family: var(--ar-display); font-size: 24px; margin-bottom: 14px; }
+.diet-photo { border-radius: var(--radius); overflow: hidden; aspect-ratio: 1 / 1; border: 1px solid var(--line-2); }
+.diet-photo img { width: 100%; height: 100%; object-fit: cover; }
+
 /* ---------- Responsive ---------------------------------------------------- */
 @media (max-width: 920px) {
+  .coach-grid { grid-template-columns: 1fr; }
+  .meal-grid { grid-template-columns: repeat(2, 1fr); }
+  .diet-plan { grid-template-columns: 1fr; }
+  .diet-photo { aspect-ratio: 16 / 9; }
   .hero-grid, .workout-head { grid-template-columns: 1fr; }
   .cards.c4 { grid-template-columns: repeat(2, 1fr); }
   .cards.c3 { grid-template-columns: 1fr; }
@@ -452,6 +549,7 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
   .nav-links { display: none; }
   .theme-toggle { margin-inline-start: auto; }
   .cards.c2, .cards.c4 { grid-template-columns: 1fr; }
+  .meal-grid { grid-template-columns: 1fr; }
   .ex { grid-template-columns: auto auto 1fr; }
   .ex-body { grid-column: 3; }
   .ex-side { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 14px; margin-top: 4px; }

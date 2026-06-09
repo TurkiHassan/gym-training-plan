@@ -3,3 +3,7 @@
 Inbody.pdf
 عرض تقديمي*.pdf
 legacy/
+
+# nested project folders (not part of this repo)
+GYM-PRO/
+GYM-PROF/

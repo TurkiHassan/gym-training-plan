@@ -280,6 +280,15 @@
     'upper-2': { animation: '/exercises/animations/single-arm-pulldown.gif',     thumbnail: '/exercises/thumbnails/single-arm-pulldown.jpg',     source: _yt('QY1Pz-7P9r8'), alt: 'سحب علوي فردي' },
     'upper-3': { animation: '/exercises/animations/lateral-raise-machine.gif',   thumbnail: '/exercises/thumbnails/lateral-raise-machine.jpg',   source: _yt('FUsmRA2Ljoo'), alt: 'كتف جانبي دفع' },
     'upper-4': { animation: '/exercises/animations/arm-superset.gif',            thumbnail: '/exercises/thumbnails/arm-superset.jpg',            source: _yt('99m0NJORe24'), alt: 'سوبر ست ذراع' },
+    // added exercises (5–6 per day) from the same dataset
+    'push-5':  { animation: '/exercises/animations/incline-dumbbell-press.gif',  thumbnail: '/exercises/thumbnails/incline-dumbbell-press.jpg',  alt: 'بنش علوي دمبل' },
+    'push-6':  { animation: '/exercises/animations/overhead-tricep-extension.gif', thumbnail: '/exercises/thumbnails/overhead-tricep-extension.jpg', alt: 'تراي علوي بالحبل' },
+    'pull-5':  { animation: '/exercises/animations/seated-cable-row.gif',         thumbnail: '/exercises/thumbnails/seated-cable-row.jpg',         alt: 'تجديف كيبل جالس' },
+    'pull-6':  { animation: '/exercises/animations/face-pull.gif',               thumbnail: '/exercises/thumbnails/face-pull.jpg',               alt: 'فيس بُل بالحبل' },
+    'legs-5':  { animation: '/exercises/animations/leg-extension.gif',           thumbnail: '/exercises/thumbnails/leg-extension.jpg',           alt: 'تمديد أمامي جهاز' },
+    'legs-6':  { animation: '/exercises/animations/romanian-deadlift.gif',       thumbnail: '/exercises/thumbnails/romanian-deadlift.jpg',       alt: 'رفعة رومانية' },
+    'upper-5': { animation: '/exercises/animations/chest-dip.gif',               thumbnail: '/exercises/thumbnails/chest-dip.jpg',               alt: 'غطس صدر' },
+    'upper-6': { animation: '/exercises/animations/preacher-curl.gif',           thumbnail: '/exercises/thumbnails/preacher-curl.jpg',           alt: 'باي بريتشر دمبل' },
   };
 
   /* ----- exercise animation previews ------------------------------------ */

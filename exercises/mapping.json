@@ -142,5 +142,61 @@
     "thumbnail": "/exercises/thumbnails/arm-superset.jpg",
     "gif_ok": true,
     "jpg_ok": true
+  },
+  "push-5": {
+    "dataset_id": "0314",
+    "dataset_name": "dumbbell incline bench press",
+    "animation": "/exercises/animations/incline-dumbbell-press.gif",
+    "thumbnail": "/exercises/thumbnails/incline-dumbbell-press.jpg",
+    "alt": "بنش علوي دمبل"
+  },
+  "push-6": {
+    "dataset_id": "0194",
+    "dataset_name": "cable overhead triceps extension (rope attachment)",
+    "animation": "/exercises/animations/overhead-tricep-extension.gif",
+    "thumbnail": "/exercises/thumbnails/overhead-tricep-extension.jpg",
+    "alt": "تراي علوي بالحبل"
+  },
+  "pull-5": {
+    "dataset_id": "0861",
+    "dataset_name": "cable seated row",
+    "animation": "/exercises/animations/seated-cable-row.gif",
+    "thumbnail": "/exercises/thumbnails/seated-cable-row.jpg",
+    "alt": "تجديف كيبل جالس"
+  },
+  "pull-6": {
+    "dataset_id": "0203",
+    "dataset_name": "cable rear delt row (with rope)",
+    "animation": "/exercises/animations/face-pull.gif",
+    "thumbnail": "/exercises/thumbnails/face-pull.jpg",
+    "alt": "فيس بُل بالحبل"
+  },
+  "legs-5": {
+    "dataset_id": "0585",
+    "dataset_name": "lever leg extension",
+    "animation": "/exercises/animations/leg-extension.gif",
+    "thumbnail": "/exercises/thumbnails/leg-extension.jpg",
+    "alt": "تمديد أمامي جهاز"
+  },
+  "legs-6": {
+    "dataset_id": "0085",
+    "dataset_name": "barbell romanian deadlift",
+    "animation": "/exercises/animations/romanian-deadlift.gif",
+    "thumbnail": "/exercises/thumbnails/romanian-deadlift.jpg",
+    "alt": "رفعة رومانية"
+  },
+  "upper-5": {
+    "dataset_id": "0251",
+    "dataset_name": "chest dip",
+    "animation": "/exercises/animations/chest-dip.gif",
+    "thumbnail": "/exercises/thumbnails/chest-dip.jpg",
+    "alt": "غطس صدر"
+  },
+  "upper-6": {
+    "dataset_id": "0372",
+    "dataset_name": "dumbbell preacher curl",
+    "animation": "/exercises/animations/preacher-curl.gif",
+    "thumbnail": "/exercises/thumbnails/preacher-curl.jpg",
+    "alt": "باي بريتشر دمبل"
   }
 }
