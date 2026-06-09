@@ -354,6 +354,61 @@
     return '<svg viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><rect x="78" y="216" width="40" height="80" rx="12"/><rect x="122" y="186" width="44" height="140" rx="14"/><rect x="346" y="186" width="44" height="140" rx="14"/><rect x="394" y="216" width="40" height="80" rx="12"/><rect x="166" y="240" width="180" height="32" rx="16"/></svg>';
   }
 
+  /* ----- InBody manual entry (editable + localStorage) ------------------ */
+  function initInbody() {
+    if (document.body.dataset.day !== 'inbody') return;
+    const KEY = 'inbody:data';
+    const fields = $$('[data-ib]');
+    if (!fields.length) return;
+
+    const defaults = {};
+    fields.forEach(f => { defaults[f.dataset.ib] = f.textContent.trim(); });
+
+    const stamp = () => {
+      const d = new Date();
+      return d.getFullYear() + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getDate()).padStart(2, '0');
+    };
+    const setDate = txt => $$('[data-ib-date]').forEach(e => e.textContent = txt);
+    function syncRing() {
+      const s = $('[data-ib="score"]');
+      if (!s) return;
+      const ring = s.closest('.score-ring');
+      if (ring) ring.style.setProperty('--p', Math.max(0, Math.min(100, parseFloat(s.textContent) || 0)));
+    }
+    function restore(data) {
+      fields.forEach(f => { const v = data[f.dataset.ib]; if (v != null && v !== '') f.textContent = v; });
+    }
+    function save() {
+      const data = {};
+      fields.forEach(f => { data[f.dataset.ib] = f.textContent.replace(/\s+/g, ' ').trim(); });
+      data._date = stamp();
+      store.set(KEY, data);
+      syncRing(); setDate(data._date);
+    }
+
+    const saved = store.get(KEY, {});
+    if (saved && Object.keys(saved).length) { restore(saved); setDate(saved._date || stamp()); }
+    else setDate('—');
+    syncRing();
+
+    fields.forEach(f => {
+      f.addEventListener('blur', save);
+      f.addEventListener('input', syncRing);
+      f.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); f.blur(); } });
+    });
+
+    const saveBtn = $('#ibSave');
+    if (saveBtn) saveBtn.addEventListener('click', () => {
+      save();
+      saveBtn.textContent = 'تم الحفظ ✓';
+      setTimeout(() => { saveBtn.textContent = 'حفظ القياس'; }, 1600);
+    });
+    const resetBtn = $('#ibReset');
+    if (resetBtn) resetBtn.addEventListener('click', () => {
+      restore(defaults); store.set(KEY, {}); syncRing(); setDate('—');
+    });
+  }
+
   /* ----- active nav link ------------------------------------------------ */
   function initNav() {
     const here = location.pathname.split('/').pop() || 'index.html';
@@ -372,6 +427,6 @@
 
   /* ----- boot ----------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', () => {
-    initTheme(); initNav(); initReveal(); initTracker(); initWeights(); initPreviews(); initTimer(); initSW();
+    initTheme(); initNav(); initReveal(); initTracker(); initWeights(); initPreviews(); initInbody(); initTimer(); initSW();
   });
 })();
