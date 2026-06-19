@@ -35,6 +35,7 @@
     radial-gradient(900px 700px at -6% 10%, rgba(30,61,89,.55), transparent 50%),
     linear-gradient(180deg, var(--navy-850) 0%, var(--navy-900) 100%);
   --nav-bg: linear-gradient(180deg, rgba(8,17,29,.92), rgba(8,17,29,.66));
+  --nav-panel: #0a1726;
   --surface: linear-gradient(160deg, rgba(22,48,73,.55), rgba(12,26,43,.55));
   --fill:      rgba(255,255,255,.05);
   --fill-soft: rgba(255,255,255,.03);
@@ -68,6 +69,7 @@
     radial-gradient(900px 700px at -6% 10%, rgba(120,150,180,.18), transparent 50%),
     linear-gradient(180deg, #f7f9fb 0%, #e9eef3 100%);
   --l-nav-bg: linear-gradient(180deg, rgba(247,249,251,.92), rgba(247,249,251,.70));
+  --l-nav-panel: #ffffff;
   --l-surface: linear-gradient(160deg, #ffffff, #f3f6f9);
   --l-fill:      rgba(13,31,51,.06);
   --l-fill-soft: rgba(13,31,51,.035);
@@ -90,7 +92,7 @@
   --ok: var(--l-ok); --down: var(--l-down);
   --line: var(--l-line); --line-2: var(--l-line-2);
   --shadow: var(--l-shadow); --shadow-sm: var(--l-shadow-sm);
-  --bg: var(--l-bg); --nav-bg: var(--l-nav-bg); --surface: var(--l-surface);
+  --bg: var(--l-bg); --nav-bg: var(--l-nav-bg); --nav-panel: var(--l-nav-panel); --surface: var(--l-surface);
   --fill: var(--l-fill); --fill-soft: var(--l-fill-soft);
   --frame-bg: var(--l-frame-bg); --frame-dot: var(--l-frame-dot);
   --ring-inner: var(--l-ring-inner); --timer-bg: var(--l-timer-bg);
@@ -102,7 +104,7 @@
     --ok: var(--l-ok); --down: var(--l-down);
     --line: var(--l-line); --line-2: var(--l-line-2);
     --shadow: var(--l-shadow); --shadow-sm: var(--l-shadow-sm);
-    --bg: var(--l-bg); --nav-bg: var(--l-nav-bg); --surface: var(--l-surface);
+    --bg: var(--l-bg); --nav-bg: var(--l-nav-bg); --nav-panel: var(--l-nav-panel); --surface: var(--l-surface);
     --fill: var(--l-fill); --fill-soft: var(--l-fill-soft);
     --frame-bg: var(--l-frame-bg); --frame-dot: var(--l-frame-dot);
     --ring-inner: var(--l-ring-inner); --timer-bg: var(--l-timer-bg);
@@ -162,6 +164,16 @@ img { max-width: 100%; display: block; }
 }
 .theme-toggle:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-1px); }
 .theme-toggle svg { width: 19px; height: 19px; }
+
+/* mobile hamburger — hidden on desktop, shown ≤620px */
+.nav-toggle {
+  display: none; width: 38px; height: 38px; flex: none; border-radius: 11px;
+  place-items: center; cursor: pointer; padding: 0;
+  border: 1px solid var(--line-2); background: var(--fill); color: var(--cream);
+  transition: border-color .2s, color .2s;
+}
+.nav-toggle:hover { border-color: var(--gold); color: var(--gold); }
+.nav-toggle svg { width: 22px; height: 22px; }
 
 /* ---------- Shared section primitives ------------------------------------- */
 .eyebrow {
@@ -618,8 +630,19 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
   .cards.c3 { grid-template-columns: 1fr; }
 }
 @media (max-width: 620px) {
-  .nav-links { display: none; }
-  .theme-toggle { margin-inline-start: auto; }
+  .nav-toggle { display: grid; margin-inline-start: auto; }
+  /* nav-links becomes a dropdown panel under the header */
+  .nav-links {
+    display: flex; flex-direction: column; gap: 2px; flex-wrap: nowrap;
+    position: absolute; inset-inline: 0; top: 100%; margin: 0;
+    background: var(--nav-panel); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line); box-shadow: var(--shadow);
+    padding: 8px 18px 14px; z-index: 45;
+    max-height: 0; overflow: hidden; opacity: 0; pointer-events: none;
+    transition: max-height .32s ease, opacity .24s, padding .32s;
+  }
+  .nav-links.open { max-height: 78vh; opacity: 1; pointer-events: auto; }
+  .nav-links a { padding: 12px 14px; font-size: 15px; border-radius: 12px; }
   .cards.c2, .cards.c4 { grid-template-columns: 1fr; }
   .meal-grid { grid-template-columns: 1fr; }
   .tip-grid { grid-template-columns: 1fr; }

@@ -409,6 +409,33 @@
     });
   }
 
+  /* ----- mobile hamburger menu ------------------------------------------ */
+  function initMobileNav() {
+    const navIn = $('.nav-in');
+    const links = navIn && $('.nav-links', navIn);
+    if (!navIn || !links) return;
+
+    const menuSVG  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+    const closeSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+
+    const btn = document.createElement('button');
+    btn.className = 'nav-toggle';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'القائمة');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.innerHTML = menuSVG;
+    navIn.insertBefore(btn, $('#themeToggle', navIn) || null);
+
+    function setOpen(open) {
+      links.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      btn.innerHTML = open ? closeSVG : menuSVG;
+    }
+    btn.addEventListener('click', () => setOpen(!links.classList.contains('open')));
+    links.addEventListener('click', e => { if (e.target.tagName === 'A') setOpen(false); });
+    window.addEventListener('resize', () => { if (window.innerWidth > 620) setOpen(false); });
+  }
+
   /* ----- active nav link ------------------------------------------------ */
   function initNav() {
     const here = location.pathname.split('/').pop() || 'index.html';
@@ -427,6 +454,6 @@
 
   /* ----- boot ----------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', () => {
-    initTheme(); initNav(); initReveal(); initTracker(); initWeights(); initPreviews(); initInbody(); initTimer(); initSW();
+    initTheme(); initNav(); initMobileNav(); initReveal(); initTracker(); initWeights(); initPreviews(); initInbody(); initTimer(); initSW();
   });
 })();
