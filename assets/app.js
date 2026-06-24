@@ -18,6 +18,9 @@
   const fmtW = n => (Math.round(n * 100) / 100).toString();
   const today = () => new Date().toISOString().slice(0, 10);
 
+  /* shared ring updater — set by initActivityRing, called from initTracker */
+  let _ringUpdate = null;
+
   /* ----- scroll reveal -------------------------------------------------- */
   function initReveal() {
     const els = $$('[data-reveal]');
@@ -54,6 +57,7 @@
       const pct = t ? Math.round(d / t * 100) : 0;
       if (bar)   bar.style.width = pct + '%';
       if (label) label.innerHTML = `<b>${d}/${t}</b> مجموعة • ${pct}%`;
+      if (_ringUpdate) _ringUpdate(d, t);
     }
 
     $$('.ex', list).forEach((ex, ei) => {
@@ -446,6 +450,34 @@
   }
 
   /* ----- service worker ------------------------------------------------- */
+  /* ----- BURN activity ring -------------------------------------------- */
+  function initActivityRing() {
+    const kpis = $('.kpis');
+    if (!kpis) return;
+    const C = 289.03; // circumference of r=46 circle
+    const wrap = document.createElement('div');
+    wrap.className = 'activity-ring';
+    wrap.innerHTML =
+      '<svg viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<circle class="ar-track" cx="55" cy="55" r="46" stroke-width="7"/>' +
+      '<circle class="ar-fill" id="arFill" cx="55" cy="55" r="46" stroke-width="7"' +
+      ' stroke-dasharray="' + C + '" stroke-dashoffset="' + C + '"' +
+      ' stroke-linecap="round" transform="rotate(-90 55 55)"/>' +
+      '<text class="ar-pct" id="arPct" x="55" y="52" text-anchor="middle">0%</text>' +
+      '<text class="ar-label" x="55" y="70" text-anchor="middle">مجموعات</text>' +
+      '</svg>';
+    kpis.appendChild(wrap);
+
+    _ringUpdate = function(done, total) {
+      const pct = total ? Math.round(done / total * 100) : 0;
+      const fill = document.getElementById('arFill');
+      const pctEl = document.getElementById('arPct');
+      if (fill)  fill.setAttribute('stroke-dashoffset', String(C * (1 - pct / 100)));
+      if (pctEl) pctEl.textContent = pct + '%';
+    };
+    _ringUpdate(0, 0);
+  }
+
   function initSW() {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
@@ -454,6 +486,6 @@
 
   /* ----- boot ----------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', () => {
-    initTheme(); initNav(); initMobileNav(); initReveal(); initTracker(); initWeights(); initPreviews(); initInbody(); initTimer(); initSW();
+    initTheme(); initNav(); initMobileNav(); initReveal(); initActivityRing(); initTracker(); initWeights(); initPreviews(); initInbody(); initTimer(); initSW();
   });
 })();
