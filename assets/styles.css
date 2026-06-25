@@ -635,8 +635,13 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
   .cards.c3 { grid-template-columns: 1fr; }
 }
 @media (max-width: 620px) {
+
+  /* ---- Padding to avoid bottom nav overlap ---- */
+  body { padding-bottom: 0; }
+  .footer { margin-bottom: 72px; }
+
+  /* ---- Nav: keep hamburger as fallback but hide on mobile ---- */
   .nav-toggle { display: grid; margin-inline-start: auto; }
-  /* nav-links becomes a dropdown panel under the header */
   .nav-links {
     display: flex; flex-direction: column; gap: 2px; flex-wrap: nowrap;
     position: absolute; inset-inline: 0; top: 100%; margin: 0;
@@ -648,15 +653,190 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
   }
   .nav-links.open { max-height: 78vh; opacity: 1; pointer-events: auto; }
   .nav-links a { padding: 12px 14px; font-size: 15px; border-radius: 12px; }
-  .cards.c2, .cards.c4 { grid-template-columns: 1fr; }
+
+  /* ---- Cards ---- */
+  .cards.c2 { grid-template-columns: 1fr; }
+  .cards.c4 { grid-template-columns: repeat(2, 1fr); }
   .meal-grid { grid-template-columns: 1fr; }
   .tip-grid { grid-template-columns: 1fr; }
   .profile-stats { gap: 18px; }
+
+  /* ---- Exercises ---- */
   .ex { grid-template-columns: auto auto 1fr; }
   .ex-body { grid-column: 3; }
-  .ex-side { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 14px; margin-top: 4px; }
+  .ex-side {
+    grid-column: 1 / -1; flex-direction: row; justify-content: space-between;
+    border-top: 1px solid var(--line); padding-top: 14px; margin-top: 4px;
+  }
   .ex-preview { width: 64px; height: 64px; }
-  .section { padding: 44px 0; }
+
+  /* ---- Section spacing ---- */
+  .section { padding: 32px 0; }
+  .hero { padding: 28px 0 24px; }
+
+  /* ---- Hero: compact mobile layout ---- */
+  .display { font-size: clamp(28px, 8vw, 40px); }
+  .photo-frame { display: none; }
+  .hero-grid { grid-template-columns: 1fr; gap: 0; }
+  .hero-tags { gap: 8px; margin-top: 18px; }
+  .tag { font-size: 13px; padding: 6px 14px; }
+  .hero-cta { margin-top: 22px; gap: 10px; }
+  .btn { font-size: 14px; padding: 12px 20px; }
+
+  /* ---- Day cards: 2-per-row ---- */
+  #days .cards.c4 { grid-template-columns: repeat(2, 1fr); }
+  .day-card .num { font-size: 36px; margin-bottom: 4px; }
+  .day-card { padding: 16px; }
+  .day-card h3 { font-size: 15px; }
+  .day-card .when { font-size: 11px; }
+  .day-card .focus span { font-size: 11px; padding: 3px 8px; }
+  .day-card .go { font-size: 12px; margin-top: 10px; }
+
+  /* ---- InBody: score on top full-width + 3 stats in a row ---- */
+  #inbody .cards.c4 {
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 12px;
+  }
+  #inbody .cards.c4 .score-card {
+    grid-column: 1 / -1;
+    padding: 20px;
+  }
+  .score-ring { width: 130px; height: 130px; }
+  .score-ring > div { width: 100px; height: 100px; }
+  .score-ring b { font-size: 36px; }
+  #inbody .cards.c4 .stat { padding: 14px 12px; }
+  #inbody .cards.c4 .stat .v { font-size: 22px; }
+  #inbody .cards.c4 .stat .k { font-size: 11px; }
+  #inbody .cards.c4 .stat .range { font-size: 10px; }
+
+  /* ---- Bottom nav bar ---- */
+  .bottom-nav {
+    display: flex !important;
+  }
+
+  /* ---- Feature cards stacked ---- */
+  .cards.c2 .feature { width: 100%; }
+}
+
+/* ---- Bottom Nav Bar (mobile only) ---- */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 50;
+  height: 64px;
+  background: var(--nav-panel);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--line-2);
+  box-shadow: 0 -8px 30px rgba(0,0,0,.45);
+  align-items: stretch;
+  direction: rtl;
+}
+
+.bottom-nav__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 10px;
+  font-family: var(--ar-body);
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+  transition: color .2s;
+  position: relative;
+}
+
+.bottom-nav__item:hover,
+.bottom-nav__item.active {
+  color: var(--gold-2);
+}
+
+.bottom-nav__item svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bottom-nav__item.active svg {
+  filter: drop-shadow(0 0 6px rgba(204,255,0,.50));
+}
+
+/* Workout dropdown from bottom nav */
+.bottom-nav__dropdown {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--nav-panel);
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+  padding: 8px;
+  min-width: 130px;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 55;
+}
+
+.bottom-nav__dropdown.open {
+  display: flex;
+}
+
+.bottom-nav__dropdown a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: var(--ar-body);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background .15s, color .15s;
+  white-space: nowrap;
+  direction: rtl;
+}
+
+.bottom-nav__dropdown a:hover {
+  background: var(--gold-soft);
+  color: var(--gold-2);
+}
+
+.bottom-nav__dropdown a svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  flex: none;
+}
+
+/* Light mode bottom nav */
+[data-theme="light"] .bottom-nav {
+  box-shadow: 0 -4px 20px rgba(0,0,0,.10);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .bottom-nav {
+    box-shadow: 0 -4px 20px rgba(0,0,0,.10);
+  }
 }
 
 /* ---------- Print --------------------------------------------------------- */
