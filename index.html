@@ -204,36 +204,10 @@
       <span>الرئيسية</span>
     </a>
 
-    <!-- التدريب (dropdown) -->
-    <button class="bottom-nav__item" id="bnWorkoutBtn" aria-label="التدريب" aria-expanded="false" aria-haspopup="true">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M6.5 6.5h11M6.5 12h11M6.5 17.5h11"/>
-        <rect x="3" y="5" width="2.5" height="14" rx="1.2"/>
-        <rect x="18.5" y="5" width="2.5" height="14" rx="1.2"/>
-        <rect x="1" y="8.5" width="2" height="7" rx="1"/>
-        <rect x="21" y="8.5" width="2" height="7" rx="1"/>
-      </svg>
+    <a class="bottom-nav__item" href="push.html" aria-label="التدريب">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h18"/><circle cx="12" cy="12" r="1"/></svg>
       <span>التدريب</span>
-      <!-- Dropdown -->
-      <div class="bottom-nav__dropdown" id="bnWorkoutDropdown" role="menu">
-        <a href="push.html" role="menuitem">
-          <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          يوم الدفع
-        </a>
-        <a href="pull.html" role="menuitem">
-          <svg viewBox="0 0 24 24"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
-          يوم السحب
-        </a>
-        <a href="upper.html" role="menuitem">
-          <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-          الجزء العلوي
-        </a>
-        <a href="legs.html" role="menuitem">
-          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-          يوم الأرجل
-        </a>
-      </div>
-    </button>
+    </a>
 
     <!-- التغذية -->
     <a class="bottom-nav__item" href="nutrition.html" aria-label="التغذية">
@@ -264,34 +238,5 @@
 
   </nav>
 
-  <script>
-    /* Bottom Nav — workout dropdown toggle */
-    (function () {
-      var btn = document.getElementById('bnWorkoutBtn');
-      var drop = document.getElementById('bnWorkoutDropdown');
-      if (!btn || !drop) return;
-
-      btn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var isOpen = drop.classList.contains('open');
-        drop.classList.toggle('open', !isOpen);
-        btn.setAttribute('aria-expanded', String(!isOpen));
-      });
-
-      /* close on outside click */
-      document.addEventListener('click', function () {
-        drop.classList.remove('open');
-        btn.setAttribute('aria-expanded', 'false');
-      });
-
-      /* close on Escape */
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') {
-          drop.classList.remove('open');
-          btn.setAttribute('aria-expanded', 'false');
-        }
-      });
-    })();
-  </script>
 </body>
 </html>

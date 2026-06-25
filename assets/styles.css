@@ -288,17 +288,16 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
 
 .exlist { display: grid; gap: 16px; margin-top: 26px; }
 .ex {
-  display: grid; grid-template-columns: auto auto 1fr auto; gap: 20px; align-items: center;
+  display: grid; grid-template-columns: 1fr auto; gap: 10px 18px; align-items: start;
   background: var(--surface);
   border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 22px;
   transition: border-color .2s, background .2s;
 }
 .ex:hover { border-color: rgba(204,255,0,.3); }
 .ex.done { border-color: rgba(95,191,143,.4); background: linear-gradient(160deg, rgba(95,191,143,.14), transparent 60%), var(--surface); }
-.ex-num { font-family: var(--serif); font-size: 30px; font-weight: 700; color: var(--gold); width: 46px; text-align: center; }
-/* explicit placement keeps the layout correct before JS injects .ex-preview */
-.ex-body { grid-column: 3; }
-.ex-side { grid-column: 4; }
+.ex-num { font-family: var(--serif); font-size: 30px; font-weight: 700; color: var(--gold); grid-column: 2; grid-row: 1; line-height: 1; text-align: center; min-width: 40px; }
+.ex-body { grid-column: 1; grid-row: 1 / span 2; }
+.ex-side { grid-column: 1 / -1; }
 .ex-body h3 { font-size: 21px; }
 .ex-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .chip {
@@ -313,7 +312,7 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
   border-radius: 999px; transition: .2s;
 }
 .ex-link:hover { background: var(--gold-soft); }
-.ex-side { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.ex-side { display: flex; flex-direction: row-reverse; justify-content: space-between; align-items: center; gap: 10px; border-top: 1px solid var(--line); padding-top: 12px; margin-top: 4px; }
 .sets { display: flex; gap: 6px; }
 .set-dot {
   width: 30px; height: 30px; border-radius: 9px; border: 1px solid var(--line-2);
@@ -326,8 +325,8 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
 
 /* ---------- Exercise animation preview ---------------------------------- */
 .ex-preview {
-  grid-column: 2; align-self: center;
-  width: 96px; height: 96px; flex: none;
+  grid-column: 2; grid-row: 2; align-self: start;
+  width: 90px; height: 90px; flex: none;
   border-radius: 14px; overflow: hidden;
   border: 1px solid var(--line);
   background: var(--fill);
@@ -662,13 +661,9 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
   .profile-stats { gap: 18px; }
 
   /* ---- Exercises ---- */
-  .ex { grid-template-columns: auto auto 1fr; }
-  .ex-body { grid-column: 3; }
-  .ex-side {
-    grid-column: 1 / -1; flex-direction: row; justify-content: space-between;
-    border-top: 1px solid var(--line); padding-top: 14px; margin-top: 4px;
-  }
-  .ex-preview { width: 64px; height: 64px; }
+  .ex { padding: 16px 16px 14px; gap: 8px 14px; }
+  .ex-num { font-size: 24px; min-width: 32px; }
+  .ex-preview { width: 72px; height: 72px; }
 
   /* ---- Section spacing ---- */
   .section { padding: 32px 0; }
@@ -775,58 +770,6 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
   filter: drop-shadow(0 0 6px rgba(204,255,0,.50));
 }
 
-/* Workout dropdown from bottom nav */
-.bottom-nav__dropdown {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--nav-panel);
-  border: 1px solid var(--line-2);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(14px);
-  padding: 8px;
-  min-width: 130px;
-  display: none;
-  flex-direction: column;
-  gap: 2px;
-  z-index: 55;
-}
-
-.bottom-nav__dropdown.open {
-  display: flex;
-}
-
-.bottom-nav__dropdown a {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  color: var(--text);
-  font-size: 14px;
-  font-family: var(--ar-body);
-  font-weight: 500;
-  text-decoration: none;
-  transition: background .15s, color .15s;
-  white-space: nowrap;
-  direction: rtl;
-}
-
-.bottom-nav__dropdown a:hover {
-  background: var(--gold-soft);
-  color: var(--gold-2);
-}
-
-.bottom-nav__dropdown a svg {
-  width: 16px;
-  height: 16px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 2;
-  flex: none;
-}
 
 /* Light mode bottom nav */
 [data-theme="light"] .bottom-nav {
@@ -839,6 +782,18 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
   }
 }
 
+/* Light mode: day card background numbers */
+[data-theme="light"] .day-card .num { color: rgba(77,122,0,.22); }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .day-card .num { color: rgba(77,122,0,.22); }
+}
+
+/* Mobile: lift timer FAB above bottom nav */
+@media (max-width: 620px) {
+  .timer-fab { bottom: calc(64px + 14px); }
+  .timer     { bottom: calc(64px + 14px); }
+}
+
 /* ---------- Print --------------------------------------------------------- */
 @media print {
   body { background: #fff; color: #111; }
@@ -847,6 +802,9 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
   .ex { grid-template-columns: auto 1fr auto; }
   .ex-body { grid-column: 2; }
   .ex-side { grid-column: 3; }
+  .ex { grid-template-columns: 1fr auto; }
+  .ex-body { grid-column: 1; }
+  .ex-side { grid-column: 1 / -1; }
   .card, .ex, .panel, .stat, .w-field { box-shadow: none; border-color: #ccc; background: #fff; }
   h1,h2,h3,.display,.kpi b,.ex-num,.w-input,.w-stat b { color: #111; }
 }
