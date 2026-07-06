@@ -632,6 +632,21 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
 .ib-hint svg { width: 15px; height: 15px; color: var(--gold); }
 #ibSave { padding: 10px 20px; font-size: 14px; }
 
+/* ---------- Profile page --------------------------------------------------- */
+.pf-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px 18px; margin-top: 6px; }
+.pf-field { display: grid; gap: 8px; align-content: start; }
+.pf-field label { font-size: 13px; color: var(--muted); font-weight: 500; }
+.pf-field input, .pf-field select {
+  width: 100%; background: var(--fill); border: 1px solid var(--line-2); border-radius: 12px;
+  color: var(--cream); font-family: var(--ar-body); font-size: 15px; padding: 11px 14px;
+  transition: border-color .2s; appearance: none; -webkit-appearance: none;
+}
+.pf-field input:focus, .pf-field select:focus { outline: none; border-color: var(--gold); }
+.pf-field input[type="number"] { font-family: var(--numeric); font-weight: 700; font-size: 17px; }
+.pf-field select option { background: var(--nav-panel); color: var(--cream); }
+.pf-span2 { grid-column: 1 / -1; }
+.pf-note { color: var(--muted); font-size: 12.5px; margin-top: 16px; }
+
 /* ---------- Responsive ---------------------------------------------------- */
 @media (max-width: 920px) {
   .coach-grid { grid-template-columns: 1fr; }

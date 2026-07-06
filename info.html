@@ -28,6 +28,7 @@
         <a href="nutrition.html">التغذية</a>
         <a href="info.html">معلومات هامة</a>
         <a href="inbody.html">InBody</a>
+        <a href="profile.html">ملفي</a>
       </nav>
       <button class="theme-toggle" id="themeToggle" type="button" aria-label="تبديل الوضع"></button>
     </div>
@@ -41,7 +42,7 @@
         <p class="lead">قواعد بسيطة لكنها تصنع الفرق — التزم بها بدقة لتحقيق أفضل نتيجة في خسارة الدهون والحفاظ على العضل.</p>
       </div>
       <div class="kpis" data-reveal>
-        <div class="kpi"><b>2350</b><span>سعرة يومياً</span></div>
+        <div class="kpi"><b data-profile-calories>2350</b><span>سعرة يومياً</span></div>
         <div class="kpi"><b>4</b><span>وجبات</span></div>
         <div class="kpi"><b>0.5%</b><span>نزول أسبوعي</span></div>
       </div>
@@ -52,12 +53,12 @@
       <div class="profile-photo"><img src="assets/img/hero-weights.jpg" alt="الملف التدريبي" loading="lazy" decoding="async"></div>
       <div class="profile-body">
         <p class="eyebrow">Trainee Profile · الملف التدريبي</p>
-        <h2>طلال تركي</h2>
+        <h2 data-profile-name>طلال تركي</h2>
         <div class="profile-stats">
-          <div><b>30</b><span>العمر</span></div>
-          <div><b>87<small> كجم</small></b><span>الوزن</span></div>
-          <div><b>179<small> سم</small></b><span>الطول</span></div>
-          <div><b>2350</b><span>السعرات</span></div>
+          <div><b data-profile-age>30</b><span>العمر</span></div>
+          <div><b><span data-profile-weight>87</span><small> كجم</small></b><span>الوزن</span></div>
+          <div><b><span data-profile-height>179</span><small> سم</small></b><span>الطول</span></div>
+          <div><b data-profile-calories>2350</b><span>السعرات</span></div>
         </div>
       </div>
     </section>
@@ -226,9 +227,9 @@
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       <span>InBody</span>
     </a>
-    <a class="bottom-nav__item active" href="info.html" aria-label="معلومات">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-      <span>معلومات</span>
+    <a class="bottom-nav__item" href="profile.html" aria-label="ملفي">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>ملفي</span>
     </a>
   </nav>
 
