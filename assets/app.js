@@ -69,6 +69,7 @@
         dot.setAttribute('tabindex', '0');
         const toggle = () => {
           dot.classList.toggle('on');
+          dot.classList.remove('pop'); void dot.offsetWidth; dot.classList.add('pop');
           state[ei] = dots.map(x => x.classList.contains('on'));
           store.set(key, state);
           refresh();
@@ -186,7 +187,7 @@
         btn.setAttribute('aria-label', label);
         btn.title = label;
       }
-      if (meta) meta.setAttribute('content', mode === 'light' ? '#f7f9fb' : '#0b1a2b');
+      if (meta) meta.setAttribute('content', mode === 'light' ? '#f7f9fb' : '#09090b');
     }
 
     if (btn) btn.addEventListener('click', () => {
@@ -440,6 +441,60 @@
     window.addEventListener('resize', () => { if (window.innerWidth > 620) setOpen(false); });
   }
 
+  /* ----- today's session + per-day progress (home) ---------------------- */
+  function initToday() {
+    const days = $$('#days .day-card');
+    if (!days.length) return;
+    const map = { 6: 'push', 0: 'pull', 2: 'upper', 3: 'legs' };
+    const todayPage = map[new Date().getDay()];
+
+    days.forEach(card => {
+      const page = (card.getAttribute('href') || '').replace('.html', '');
+      const st = store.get('sets:' + page, {});
+      const done = Object.values(st).reduce((n, a) => n + (a ? a.filter(Boolean).length : 0), 0);
+      if (done > 0) {
+        const chip = document.createElement('div');
+        chip.className = 'day-progress';
+        chip.textContent = done + ' مجموعة منجزة';
+        card.appendChild(chip);
+      }
+      if (page === todayPage) {
+        card.classList.add('today');
+        const badge = document.createElement('span');
+        badge.className = 'today-badge';
+        badge.textContent = 'حصة اليوم';
+        card.appendChild(badge);
+        const cta = $('.hero-cta .btn-gold');
+        if (cta && cta.getAttribute('href')) cta.setAttribute('href', page + '.html');
+      }
+    });
+  }
+
+  /* ----- KPI count-up on reveal ----------------------------------------- */
+  function initCountUp() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!('IntersectionObserver' in window)) return;
+    $$('.kpi b').forEach(el => {
+      const txt = el.textContent.trim();
+      if (!/^\d+$/.test(txt)) return;
+      const target = +txt;
+      el.textContent = '0';
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(en => {
+          if (!en.isIntersecting) return;
+          io.disconnect();
+          const t0 = performance.now(), dur = 800;
+          (function step(t) {
+            const p = Math.min((t - t0) / dur, 1);
+            el.textContent = String(Math.round(target * (1 - Math.pow(1 - p, 3))));
+            if (p < 1) requestAnimationFrame(step);
+          })(t0);
+        });
+      }, { threshold: .5 });
+      io.observe(el);
+    });
+  }
+
   /* ----- active nav link ------------------------------------------------ */
   function initNav() {
     const here = location.pathname.split('/').pop() || 'index.html';
@@ -486,6 +541,6 @@
 
   /* ----- boot ----------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', () => {
-    initTheme(); initNav(); initMobileNav(); initReveal(); initActivityRing(); initTracker(); initWeights(); initPreviews(); initInbody(); initTimer(); initSW();
+    initTheme(); initNav(); initMobileNav(); initReveal(); initActivityRing(); initTracker(); initWeights(); initPreviews(); initInbody(); initTimer(); initToday(); initCountUp(); initSW();
   });
 })();
