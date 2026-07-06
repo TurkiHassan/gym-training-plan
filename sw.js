@@ -1,5 +1,5 @@
 /* Service worker — offline-first caching for the training plan app. */
-const CACHE = 'training-plan-v10';
+const CACHE = 'training-plan-v11';
 const ASSETS = [
   'index.html',
   'push.html',

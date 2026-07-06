@@ -471,7 +471,13 @@
     if (p.weight) $$('[data-profile-weight]').forEach(e => e.textContent = fmtW(parseFloat(p.weight)));
     if (p.height) $$('[data-profile-height]').forEach(e => e.textContent = p.height);
     const t = profileTargets(p);
-    if (t) $$('[data-profile-calories]').forEach(e => e.textContent = t.calories);
+    if (!t) return;
+    const setHook = (sel, val) => $$(sel).forEach(e => {
+      e.textContent = val;
+      if (e.dataset.swapLabel && e.nextElementSibling) e.nextElementSibling.textContent = e.dataset.swapLabel;
+    });
+    setHook('[data-profile-calories]', t.calories);
+    setHook('[data-profile-protein]', t.protein + 'غ');
   }
 
   function initProfile() {
@@ -533,10 +539,41 @@
       if (p.weight) ibd.weight = p.weight;
       if (p.target) ibd.target = p.target;
       store.set('inbody:data', ibd);
+      const w = parseFloat(p.weight);
+      if (w > 0) {
+        const arr = store.get('weightlog:body', []).filter(e => e.d !== today());
+        arr.push({ d: today(), w: w });
+        arr.sort((a, b) => a.d.localeCompare(b.d));
+        store.set('weightlog:body', arr.slice(-120));
+        renderWeightLog();
+      }
       applyProfile();
       saveBtn.textContent = 'تم الحفظ ✓';
       setTimeout(() => { saveBtn.textContent = 'حفظ البيانات'; }, 1600);
     });
+
+    const nBtn = $('#pfNotify');
+    if (nBtn) {
+      if (!('Notification' in window)) nBtn.style.display = 'none';
+      else {
+        const paintNotify = () => {
+          const on = store.get('weighNotify', false) && Notification.permission === 'granted';
+          nBtn.textContent = on ? 'تذكير القياس مفعّل ✓' : 'تفعيل تذكير القياس';
+        };
+        paintNotify();
+        nBtn.addEventListener('click', () => {
+          if (store.get('weighNotify', false) && Notification.permission === 'granted') {
+            store.set('weighNotify', false); paintNotify(); return;
+          }
+          Notification.requestPermission().then(perm => {
+            if (perm === 'granted') store.set('weighNotify', true);
+            paintNotify();
+          });
+        });
+      }
+    }
+
+    renderWeightLog();
 
     const BACKUP_RE = /^(profile:|inbody:|sets:|weightlog:|restDefault|theme)/;
     $('#pfExport').addEventListener('click', () => {
@@ -568,6 +605,91 @@
       };
       reader.readAsText(f);
     });
+  }
+
+  /* ----- body weight log chart (profile) --------------------------------- */
+  function renderWeightLog() {
+    const wrap = $('#pfChart'), statsEl = $('#pfLogStats');
+    if (!wrap) return;
+    const log = store.get('weightlog:body', []);
+    const p = store.get(PROFILE_KEY, {});
+    if (!log.length) {
+      wrap.innerHTML = '<p class="pf-empty">اضغط حفظ البيانات وسيُسجَّل وزن اليوم تلقائياً، ومع القياس الأسبوعي يظهر المنحنى هنا.</p>';
+      statsEl.innerHTML = '';
+      return;
+    }
+    const first = log[0].w, lastW = log[log.length - 1].w;
+    const target = parseFloat(p.target) || null;
+    const diff = +(lastW - first).toFixed(1);
+    const toGo = target != null ? +(lastW - target).toFixed(1) : null;
+    statsEl.innerHTML =
+      '<div><b>' + fmtW(first) + '</b><span>وزن البداية</span></div>' +
+      '<div><b>' + fmtW(lastW) + '</b><span>الوزن الحالي</span></div>' +
+      '<div><b>' + (diff > 0 ? '+' : '') + diff + '</b><span>التغيّر الكلي</span></div>' +
+      (toGo != null ? '<div><b>' + fmtW(Math.abs(toGo)) + '</b><span>' + (toGo > 0 ? 'متبقٍ للهدف' : 'تحت الهدف') + '</span></div>' : '');
+    if (log.length < 2) {
+      wrap.innerHTML = '<p class="pf-empty">أضف قياساً جديداً الأسبوع القادم ليظهر منحنى التقدم.</p>';
+      return;
+    }
+    const W = 600, H = 200, PL = 46, PR = 14, PT = 16, PB = 26;
+    const ws = log.map(e => e.w);
+    let min = Math.min.apply(null, ws.concat(target != null ? [target] : []));
+    let max = Math.max.apply(null, ws.concat(target != null ? [target] : []));
+    const pad = Math.max((max - min) * 0.15, 1); min -= pad; max += pad;
+    const X = i => PL + (W - PL - PR) * (i / (log.length - 1));
+    const Y = w => PT + (H - PT - PB) * (1 - (w - min) / (max - min));
+    const pts  = log.map((e, i) => X(i) + ',' + Y(e.w)).join(' ');
+    const dots = log.map((e, i) => '<circle cx="' + X(i) + '" cy="' + Y(e.w) + '" r="3.5" style="fill:var(--gold)"/>').join('');
+    const tLine = target != null
+      ? '<line x1="' + PL + '" y1="' + Y(target) + '" x2="' + (W - PR) + '" y2="' + Y(target) + '" style="stroke:var(--ok);stroke-dasharray:5 5;stroke-width:1.5;opacity:.8"/>' +
+        '<text x="' + (W - PR) + '" y="' + (Y(target) - 6) + '" text-anchor="end" style="fill:var(--ok);font-size:11px">الهدف ' + fmtW(target) + '</text>'
+      : '';
+    const fmtD = d => d.slice(5).replace('-', '/');
+    wrap.innerHTML =
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="منحنى الوزن">' +
+      '<line x1="' + PL + '" y1="' + (H - PB) + '" x2="' + (W - PR) + '" y2="' + (H - PB) + '" style="stroke:var(--line-2)"/>' +
+      tLine +
+      '<polyline points="' + pts + '" style="fill:none;stroke:var(--gold);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round"/>' +
+      dots +
+      '<text x="' + PL + '" y="' + (H - 8) + '" style="fill:var(--muted);font-size:11px">' + fmtD(log[0].d) + '</text>' +
+      '<text x="' + (W - PR) + '" y="' + (H - 8) + '" text-anchor="end" style="fill:var(--muted);font-size:11px">' + fmtD(log[log.length - 1].d) + '</text>' +
+      '<text x="' + (PL - 6) + '" y="' + (Y(lastW) + 4) + '" text-anchor="end" style="fill:var(--cream);font-size:12px;font-weight:700">' + fmtW(lastW) + '</text>' +
+      '</svg>';
+  }
+
+  /* ----- weekly weigh-in reminder ---------------------------------------- */
+  function initWeighReminder() {
+    const p = store.get(PROFILE_KEY, null);
+    if (!p || !p.name) return;
+    const log = store.get('weightlog:body', []);
+    const last = log.length ? log[log.length - 1].d : null;
+    const days = last ? Math.floor((Date.now() - new Date(last + 'T00:00:00')) / 86400000) : null;
+    if (last && days < 7) return;
+
+    if ($('#days') && store.get('weighDismiss', '') !== today()) {
+      const b = document.createElement('div');
+      b.className = 'remind-banner wrap';
+      b.innerHTML =
+        '<div class="rb-in">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M6 7l1.5 1.5M18 7l-1.5 1.5"/><path d="M4 21h16M7 21a5 5 0 0 1 10 0"/><circle cx="12" cy="13" r="3"/></svg>' +
+        '<div class="rb-txt"><b>وقت قياس الوزن</b><span>' +
+        (last ? 'مرّ ' + days + ' ' + (days > 10 ? 'يوماً' : 'أيام') + ' منذ آخر تسجيل' : 'لم تسجّل وزنك بعد') +
+        '</span></div>' +
+        '<a class="btn btn-gold" href="profile.html">سجّل الآن</a>' +
+        '<button class="rb-close" type="button" aria-label="إغلاق">×</button>' +
+        '</div>';
+      const main = $('main');
+      if (main) main.insertBefore(b, main.firstChild);
+      $('.rb-close', b).addEventListener('click', () => { store.set('weighDismiss', today()); b.remove(); });
+    }
+
+    if (store.get('weighNotify', false) && 'Notification' in window &&
+        Notification.permission === 'granted' && store.get('weighNotifyLast', '') !== today()) {
+      try {
+        new Notification('حان وقت قياس الوزن', { body: 'سجّل وزنك الأسبوعي في ملفك الشخصي', icon: 'assets/icon.svg' });
+        store.set('weighNotifyLast', today());
+      } catch {}
+    }
   }
 
   /* ----- today's session + per-day progress (home) ---------------------- */
@@ -670,6 +792,6 @@
 
   /* ----- boot ----------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', () => {
-    initTheme(); initNav(); initMobileNav(); initReveal(); initActivityRing(); initTracker(); initWeights(); initPreviews(); initInbody(); initTimer(); initProfile(); applyProfile(); initToday(); initCountUp(); initSW();
+    initTheme(); initNav(); initMobileNav(); initReveal(); initActivityRing(); initTracker(); initWeights(); initPreviews(); initInbody(); initTimer(); initProfile(); applyProfile(); initWeighReminder(); initToday(); initCountUp(); initSW();
   });
 })();
