@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ملفي الشخصي | خطة التدريب</title>
+  <meta name="description" content="الملف الشخصي: الاسم وبيانات الجسم والأهداف — تُحسب سعراتك واحتياجك من البروتين تلقائياً وتظهر في كل الصفحات.">
+  <meta name="theme-color" content="#09090b">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <script>try{var t=JSON.parse(localStorage.getItem('theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-day="profile">
+  <header class="nav">
+    <div class="wrap nav-in">
+      <a class="brand" href="index.html">
+        <span class="mark"><svg width="22" height="22" viewBox="0 0 512 512" fill="currentColor"><rect x="78" y="216" width="40" height="80" rx="12"/><rect x="122" y="186" width="44" height="140" rx="14"/><rect x="346" y="186" width="44" height="140" rx="14"/><rect x="394" y="216" width="40" height="80" rx="12"/><rect x="166" y="240" width="180" height="32" rx="16"/></svg></span>
+        <span>خطة التدريب<small>Fitness Time · 3 أشهر</small></span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html">الرئيسية</a>
+        <a href="push.html">الدفع</a>
+        <a href="pull.html">السحب</a>
+        <a href="legs.html">الأرجل</a>
+        <a href="upper.html">العلوي</a>
+        <a href="nutrition.html">التغذية</a>
+        <a href="info.html">معلومات هامة</a>
+        <a href="inbody.html">InBody</a>
+        <a href="profile.html">ملفي</a>
+      </nav>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="تبديل الوضع"></button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="workout-head">
+      <div data-reveal>
+        <p class="eyebrow">Your Profile</p>
+        <h1 class="display">ملفي الشخصي</h1>
+        <p class="lead">أدخل بياناتك مرة واحدة، اسمك يظهر في كل الصفحات وتُحسب سعراتك واحتياجك من البروتين والماء تلقائياً.</p>
+      </div>
+    </section>
+
+    <section class="panel" data-reveal style="margin-top:20px">
+      <h2>البيانات الأساسية</h2>
+      <div class="pf-form">
+        <div class="pf-field pf-span2">
+          <label for="pfName">الاسم</label>
+          <input id="pfName" type="text" autocomplete="name" placeholder="اكتب اسمك">
+        </div>
+        <div class="pf-field">
+          <label for="pfGender">الجنس</label>
+          <select id="pfGender">
+            <option value="m">ذكر</option>
+            <option value="f">أنثى</option>
+          </select>
+        </div>
+        <div class="pf-field">
+          <label for="pfAge">العمر</label>
+          <input id="pfAge" type="number" inputmode="numeric" min="10" max="90" placeholder="30">
+        </div>
+        <div class="pf-field">
+          <label for="pfHeight">الطول (سم)</label>
+          <input id="pfHeight" type="number" inputmode="decimal" min="120" max="230" placeholder="175">
+        </div>
+        <div class="pf-field">
+          <label for="pfWeight">الوزن الحالي (كجم)</label>
+          <input id="pfWeight" type="number" inputmode="decimal" min="30" max="250" step="0.1" placeholder="80">
+        </div>
+        <div class="pf-field">
+          <label for="pfTarget">الوزن المستهدف (كجم)</label>
+          <input id="pfTarget" type="number" inputmode="decimal" min="30" max="250" step="0.1" placeholder="72">
+        </div>
+        <div class="pf-field">
+          <label for="pfActivity">مستوى النشاط</label>
+          <select id="pfActivity">
+            <option value="1.2">خامل — عمل مكتبي بلا تمرين</option>
+            <option value="1.375">خفيف — تمرين 1-3 أيام</option>
+            <option value="1.55" selected>متوسط — تمرين 3-5 أيام</option>
+            <option value="1.725">عالي — تمرين 6-7 أيام</option>
+          </select>
+        </div>
+      </div>
+      <p class="pf-note">بياناتك تُحفظ على جهازك فقط ولا تُرسل لأي خادم. استخدم النسخة الاحتياطية عند تغيير الجهاز.</p>
+    </section>
+
+    <section class="section" style="padding-top:36px">
+      <p class="eyebrow" data-reveal>Calculated Targets</p>
+      <h2 class="section-title" data-reveal>مؤشراتك المحسوبة</h2>
+      <div class="cards c4" style="margin-top:24px">
+        <div class="stat" data-reveal>
+          <div class="v"><span id="pfBmi">—</span></div>
+          <div class="k">مؤشر كتلة الجسم BMI</div>
+          <div class="range" id="pfBmiCat">أدخل الطول والوزن</div>
+        </div>
+        <div class="stat" data-reveal>
+          <div class="v"><span id="pfCalories">—</span><small> سعرة</small></div>
+          <div class="k">سعرات خسارة الدهون</div>
+          <div class="range" id="pfTdee">احتياجك اليومي: —</div>
+        </div>
+        <div class="stat" data-reveal>
+          <div class="v"><span id="pfProtein">—</span><small> غرام</small></div>
+          <div class="k">البروتين اليومي</div>
+          <div class="range">1.8 غرام لكل كجم من وزنك</div>
+        </div>
+        <div class="stat" data-reveal>
+          <div class="v"><span id="pfWater">—</span><small> لتر</small></div>
+          <div class="k">الماء اليومي</div>
+          <div class="range">35 مل لكل كجم من وزنك</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" data-reveal style="margin-top:26px">
+      <h2>سجل الوزن</h2>
+      <div class="pf-chart" id="pfChart"></div>
+      <div class="pf-log-stats" id="pfLogStats"></div>
+    </section>
+
+    <div class="hero-cta" data-reveal style="margin-top:24px">
+      <button class="btn btn-gold" id="pfSave" type="button">حفظ البيانات</button>
+      <button class="btn btn-ghost" id="pfNotify" type="button">تفعيل تذكير القياس</button>
+      <button class="btn btn-ghost" id="pfExport" type="button">تصدير نسخة احتياطية</button>
+      <button class="btn btn-ghost" id="pfImport" type="button">استيراد نسخة</button>
+      <input id="pfImportFile" type="file" accept="application/json" hidden>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-grid">
+      <div class="muted">الملف الشخصي — بياناتك محفوظة على جهازك · Fitness Time 2026</div>
+      <div class="contact"><div><span>SOCIAL</span>@fitnesstime</div></div>
+    </div>
+  </footer>
+
+  <script src="assets/app.js" defer></script>
+
+  <!-- Bottom Navigation Bar (Mobile) -->
+  <nav class="bottom-nav" role="navigation" aria-label="تنقل سريع">
+    <a class="bottom-nav__item" href="index.html" aria-label="الرئيسية">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>الرئيسية</span>
+    </a>
+    <a class="bottom-nav__item" href="push.html" aria-label="التدريب">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h18"/><circle cx="12" cy="12" r="1"/></svg>
+      <span>التدريب</span>
+    </a>
+    <a class="bottom-nav__item" href="nutrition.html" aria-label="التغذية">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2a2 2 0 0 0-2 2v5H4a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h3v4a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-4h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2h-5V4a2 2 0 0 0-2-2h-2z"/></svg>
+      <span>التغذية</span>
+    </a>
+    <a class="bottom-nav__item" href="inbody.html" aria-label="InBody">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span>InBody</span>
+    </a>
+    <a class="bottom-nav__item active" href="profile.html" aria-label="ملفي">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>ملفي</span>
+    </a>
+  </nav>
+
+</body>
+</html>
