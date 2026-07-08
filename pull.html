@@ -2,13 +2,17 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="خطة التدريب">
+  <meta name="format-detection" content="telephone=no">
   <title>يوم السحب — Pull | خطة التدريب</title>
   <meta name="description" content="حصة السحب: ظهر، كتف خلفي، بايسبس — 6 تمارين شاملة مع روابط الأداء ومتابعة المجموعات.">
   <meta name="theme-color" content="#09090b">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
-  <script>try{var t=JSON.parse(localStorage.getItem('theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+  <script>try{var t=JSON.parse(localStorage.getItem('theme'));if(t)document.documentElement.dataset.theme=t;var L=JSON.parse(localStorage.getItem('lang'));if(L==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr';}}catch(e){}</script>
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body class="has-timer" data-day="pull">
@@ -38,7 +42,7 @@
       <div data-reveal>
         <p class="eyebrow">Day 2 — Pull Workout · الأحد</p>
         <h1 class="display">يوم السحب</h1>
-        <p class="lead">حصة تغطّي الظهر والكتف الخلفي والبايسبس باختيار تمارين تعطي أفضل تغطية للحصة.</p>
+        <p class="lead">الظهر والكتف الخلفي والبايسبس — ست تمارين بأفضل تغطية.</p>
       </div>
       <div class="kpis" data-reveal>
         <div class="kpi"><b>6</b><span>تمارين</span></div>
@@ -174,6 +178,7 @@
     </div>
   </footer>
 
+  <script src="assets/i18n.js"></script>
   <script src="assets/app.js" defer></script>
 
   <!-- Bottom Navigation Bar (Mobile) -->
