@@ -2,14 +2,18 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="خطة التدريب">
+  <meta name="format-detection" content="telephone=no">
   <title>معلومات هامة | خطة التدريب</title>
   <meta name="description" content="تعليمات وقواعد الخطة: التغذية، قياس الوزن، الوجبة المفتوحة، الكارديو، والمقاسات الأسبوعية.">
   <meta name="theme-color" content="#09090b">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/icon.svg">
-  <script>try{var t=JSON.parse(localStorage.getItem('theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+  <script>try{var t=JSON.parse(localStorage.getItem('theme'));if(t)document.documentElement.dataset.theme=t;var L=JSON.parse(localStorage.getItem('lang'));if(L==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr';}}catch(e){}</script>
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body data-day="info">
@@ -39,7 +43,7 @@
       <div data-reveal>
         <p class="eyebrow">Important Info · تعليمات الخطة</p>
         <h1 class="display">معلومات هامة</h1>
-        <p class="lead">قواعد بسيطة لكنها تصنع الفرق — التزم بها بدقة لتحقيق أفضل نتيجة في خسارة الدهون والحفاظ على العضل.</p>
+        <p class="lead">قواعد بسيطة تصنع الفرق — التزم بها بدقة.</p>
       </div>
       <div class="kpis" data-reveal>
         <div class="kpi"><b data-profile-calories>2350</b><span>سعرة يومياً</span></div>
@@ -207,6 +211,7 @@
     </div>
   </footer>
 
+  <script src="assets/i18n.js"></script>
   <script src="assets/app.js" defer></script>
 
   <!-- Bottom Navigation Bar (Mobile) -->

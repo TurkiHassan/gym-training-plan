@@ -2,7 +2,11 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="خطة التدريب">
+  <meta name="format-detection" content="telephone=no">
   <title>خطة التدريب — 3 أشهر | Fitness Time</title>
   <meta name="description" content="خطة تدريب 3 أشهر لخسارة الدهون والحفاظ على العضلات — بوش، بُل، أرجل، علوي، مع متابعة InBody.">
   <meta name="theme-color" content="#09090b">
@@ -12,7 +16,7 @@
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/icon.svg">
-  <script>try{var t=JSON.parse(localStorage.getItem('theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+  <script>try{var t=JSON.parse(localStorage.getItem('theme'));if(t)document.documentElement.dataset.theme=t;var L=JSON.parse(localStorage.getItem('lang'));if(L==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr';}}catch(e){}</script>
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
@@ -45,13 +49,14 @@
     <section class="hero wrap">
       <div class="hero-grid">
         <div class="hero-copy" data-reveal>
+          <p class="greet" data-greet hidden></p>
           <p class="eyebrow">3-Month Training Plan</p>
           <h1 class="display">خطة تدريب<br>ثلاثة أشهر</h1>
-          <p class="lead">برنامج متكامل لخسارة الدهون مع الحفاظ على الكتلة العضلية — أربع حصص أسبوعية مدروسة، ومتابعة قياس InBody كل أربعة أسابيع.</p>
+          <p class="lead">خسارة دهون مع الحفاظ على العضلات — حصص مدروسة ومتابعة InBody شهرياً.</p>
           <div class="hero-tags">
             <span class="tag">خسارة دهون</span>
             <span class="tag">حفاظ على العضلات</span>
-            <span class="tag">4 حصص / أسبوع</span>
+            <span class="tag" data-week-tag>4 حصص / أسبوع</span>
           </div>
           <div class="hero-cta">
             <a class="btn btn-gold" href="push.html">ابدأ حصة اليوم</a>
@@ -72,7 +77,7 @@
       <div class="overview-grid" style="margin-top:32px">
         <div class="card overview-main" data-reveal>
           <p class="overview-label">الهدف الأساسي</p>
-          <p class="overview-text">تنشيف وخسارة دهون مع الإبقاء على أكبر قدر من العضلات عبر التدرّج في الأوزان — حصص منظّمة ومتدرجة الحِمل ومتابعة دقيقة كل شهر.</p>
+          <p class="overview-text">تنشيف مع الإبقاء على أكبر قدر من العضلات — تدرّج في الأوزان ومتابعة شهرية دقيقة.</p>
         </div>
         <div class="overview-stats" data-reveal>
           <div class="stat">
@@ -131,14 +136,14 @@
     <section class="section wrap" id="discover">
       <p class="eyebrow" data-reveal>More from Fitness Time</p>
       <h2 class="section-title" data-reveal>اكتشف المزيد</h2>
-      <p class="lead" data-reveal>التمرين نصف الطريق — المدرب الصحيح والتغذية المتوازنة هما النصف الآخر.</p>
+      <p class="lead" data-reveal>التمرين نصف الطريق — التغذية المنضبطة هي النصف الآخر.</p>
       <div class="cards c2" style="margin-top:26px">
         <a class="feature" href="info.html" data-reveal>
           <div class="feature-img"><img src="assets/img/hero-weights.jpg" alt="معلومات هامة" loading="lazy" decoding="async"></div>
           <div class="feature-body">
             <p class="eyebrow">Important Info</p>
             <h3>معلومات هامة</h3>
-            <p>قواعد التغذية والوزن والكارديو والوجبة المفتوحة — أساس نجاح خطتك.</p>
+            <p>قواعد الوزن والتغذية والكارديو والوجبة المفتوحة.</p>
             <span class="go">عرض التعليمات ←</span>
           </div>
         </a>
@@ -147,7 +152,7 @@
           <div class="feature-body">
             <p class="eyebrow">Nutrition</p>
             <h3>الأكل الصحي</h3>
-            <p>وجبات غنية بالبروتين وأطباق متوازنة تدعم خسارة الدهون وبناء العضل.</p>
+            <p>وجبات عالية البروتين متوازنة الماكروز.</p>
             <span class="go">دليل التغذية ←</span>
           </div>
         </a>
@@ -158,7 +163,7 @@
     <section class="section wrap" id="inbody">
       <p class="eyebrow" data-reveal>Monthly InBody Update</p>
       <h2 class="section-title" data-reveal>قياس InBody الأخير</h2>
-      <p class="lead" data-reveal>آخر قياس بتاريخ 2026.04.18 — تابع تطورك مع كل قياس شهري.</p>
+      <p class="lead" data-reveal>تابع تطوّرك مع كل قياس شهري.</p>
       <div class="cards c4" style="margin-top:26px; align-items:start">
         <div class="card score-card" data-reveal>
           <div class="score-ring" style="--p:69"><div><b>69</b><span>InBody Score</span></div></div>
@@ -195,6 +200,7 @@
     </div>
   </footer>
 
+  <script src="assets/i18n.js"></script>
   <script src="assets/app.js" defer></script>
 
   <!-- ===== Bottom Navigation Bar (mobile only) ===== -->

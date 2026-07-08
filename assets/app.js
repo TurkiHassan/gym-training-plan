@@ -92,23 +92,29 @@
     refresh();
   }
 
-  /* ----- rest timer ----------------------------------------------------- */
+  /* ----- rest timer (deadline-based + lock-screen Media Session) -------- */
   function initTimer() {
     if (!document.body.classList.contains('has-timer')) return;
 
     const DEFAULT = store.get('restDefault', 90);
-    let remaining = DEFAULT, tick = null, total = DEFAULT;
+    let total = DEFAULT;       // seconds for the current interval
+    let deadline = 0;          // epoch ms when it ends
+    let paused = total;        // seconds left while paused (null = running)
+    let raf = null;
 
     const fab = document.createElement('button');
-    fab.className = 'timer-fab'; fab.title = 'مؤقّت الراحة'; fab.setAttribute('aria-label', 'مؤقّت الراحة');
+    fab.className = 'timer-fab'; fab.title = T('مؤقّت الراحة', 'Rest timer');
+    fab.setAttribute('aria-label', T('مؤقّت الراحة', 'Rest timer'));
     fab.innerHTML = clockSVG();
 
     const box = document.createElement('div');
     box.className = 'timer';
     box.innerHTML =
-      '<div class="t-head"><span>مؤقّت الراحة</span><button class="t-close" aria-label="إغلاق">×</button></div>' +
+      '<div class="t-head"><span>' + T('مؤقّت الراحة', 'Rest timer') + '</span>' +
+        '<button class="t-close" aria-label="' + T('إغلاق', 'Close') + '">×</button></div>' +
       '<div class="t-time" id="tTime">1:30</div>' +
-      '<div class="t-row"><button id="tToggle">ابدأ</button><button id="tReset">صفّر</button></div>' +
+      '<div class="t-row"><button id="tToggle">' + T('ابدأ', 'Start') + '</button>' +
+        '<button id="tReset">' + T('صفّر', 'Reset') + '</button></div>' +
       '<div class="t-presets"><button data-s="60">60</button><button data-s="90">90</button><button data-s="120">120</button></div>';
 
     document.body.append(fab, box);
@@ -117,39 +123,131 @@
     const elTog   = $('#tToggle', box);
     const elReset = $('#tReset', box);
 
+    // silent looping audio → keeps a Media Session alive so the countdown
+    // shows on the iPhone lock screen while the phone is locked.
+    let audioEl = null;
+    function ensureAudio() {
+      if (audioEl) return audioEl;
+      audioEl = new Audio(silentWavURL(1));
+      audioEl.loop = true; audioEl.volume = 0.001;
+      audioEl.setAttribute('playsinline', ''); audioEl.preload = 'auto';
+      return audioEl;
+    }
+
+    const secsLeft = () => paused != null ? paused : Math.max(0, Math.round((deadline - Date.now()) / 1000));
     const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+
     function render() {
-      elTime.textContent = fmt(Math.max(remaining, 0));
-      elTime.classList.toggle('warn', remaining <= 10);
+      const s = secsLeft();
+      elTime.textContent = fmt(s);
+      elTime.classList.toggle('warn', s <= 10);
+      updateMediaSession(s);
     }
-    function stop() { clearInterval(tick); tick = null; elTog.textContent = 'ابدأ'; }
+    function loop() {
+      render();
+      if (paused == null) {
+        if (secsLeft() <= 0) { finish(); return; }
+        raf = requestAnimationFrame(loop);
+      }
+    }
     function run() {
-      stop(); elTog.textContent = 'إيقاف';
-      tick = setInterval(() => {
-        remaining--;
-        render();
-        if (remaining <= 0) { stop(); remaining = total; render(); beep(); vibrate(); }
-      }, 1000);
+      paused = null;
+      deadline = Date.now() + total * 1000;
+      elTog.textContent = T('إيقاف', 'Pause');
+      startMedia();
+      cancelAnimationFrame(raf); loop();
     }
-    function open() { box.classList.add('open'); fab.style.display = 'none'; }
+    function pause() {
+      if (paused != null) return;
+      paused = secsLeft();
+      cancelAnimationFrame(raf);
+      elTog.textContent = T('ابدأ', 'Start');
+      if (audioEl) audioEl.pause();
+      updateMediaSession(paused, 'paused');
+    }
+    function resetTo(sec) {
+      total = sec; paused = sec; deadline = 0;
+      cancelAnimationFrame(raf);
+      elTog.textContent = T('ابدأ', 'Start');
+      if (audioEl) audioEl.pause();
+      render();
+    }
+    function finish() {
+      paused = total; deadline = 0;
+      cancelAnimationFrame(raf);
+      elTog.textContent = T('ابدأ', 'Start');
+      render();
+      beep(); vibrate(); notify();
+      if (audioEl) audioEl.pause();
+    }
+    function open()  { box.classList.add('open'); fab.style.display = 'none'; }
     function close() { box.classList.remove('open'); fab.style.display = 'grid'; }
 
     fab.addEventListener('click', open);
-    $('.t-close', box).addEventListener('click', () => { stop(); close(); });
-    elTog.addEventListener('click', () => (tick ? stop() : run()));
-    elReset.addEventListener('click', () => { stop(); remaining = total; render(); });
+    $('.t-close', box).addEventListener('click', () => { pause(); close(); });
+    elTog.addEventListener('click', () => (paused == null ? pause() : run()));
+    elReset.addEventListener('click', () => resetTo(total));
     $$('.t-presets button', box).forEach(b => b.addEventListener('click', () => {
-      total = remaining = +b.dataset.s; store.set('restDefault', total); render();
-      if (!tick) run();
+      total = +b.dataset.s; store.set('restDefault', total);
+      run();
     }));
 
-    render();
+    // resync when returning from a locked / backgrounded screen
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && paused == null) { if (secsLeft() <= 0) finish(); else render(); }
+    });
+
+    resetTo(DEFAULT);
 
     // public API used by the tracker
     window.RestTimer = {
-      start() { open(); total = store.get('restDefault', DEFAULT); remaining = total; run(); }
+      start() { open(); total = store.get('restDefault', DEFAULT); run(); }
     };
 
+    /* ---- Media Session: lock-screen widget with remaining time ---- */
+    function startMedia() {
+      const a = ensureAudio();
+      const p = a.play();
+      if (p && p.catch) p.catch(() => {});
+      if ('mediaSession' in navigator) {
+        try {
+          navigator.mediaSession.metadata = new MediaMetadata({
+            title: T('مؤقّت الراحة', 'Rest timer'),
+            artist: T('خطة التدريب', 'Training Plan'),
+            album: T('حصة اليوم', "Today's session")
+          });
+          navigator.mediaSession.setActionHandler('pause', () => pause());
+          navigator.mediaSession.setActionHandler('play',  () => run());
+          navigator.mediaSession.setActionHandler('stop',  () => resetTo(total));
+        } catch {}
+      }
+    }
+    function updateMediaSession(s, state) {
+      if (!('mediaSession' in navigator)) return;
+      try {
+        navigator.mediaSession.playbackState = state || (paused == null ? 'playing' : 'paused');
+        if ('setPositionState' in navigator.mediaSession) {
+          navigator.mediaSession.setPositionState({
+            duration: total,
+            position: Math.min(total, Math.max(0, total - s)),
+            playbackRate: 1
+          });
+        }
+        if (navigator.mediaSession.metadata) {
+          navigator.mediaSession.metadata.title =
+            T('راحة', 'Rest') + ' · ' + fmt(s) + (s <= 0 ? ' ✓' : '');
+        }
+      } catch {}
+    }
+
+    function notify() {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try { new Notification(T('انتهت الراحة', 'Rest over'), {
+          body: T('ابدأ المجموعة التالية', 'Start your next set'),
+          icon: 'assets/icon.svg', tag: 'rest-timer', silent: false
+        }); } catch {}
+      }
+    }
     function beep() {
       try {
         const ac = new (window.AudioContext || window.webkitAudioContext)();
@@ -165,6 +263,16 @@
     function vibrate() { if (navigator.vibrate) navigator.vibrate([120, 60, 120]); }
     function clockSVG() {
       return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 13V9M9 2h6"/></svg>';
+    }
+    function silentWavURL(seconds) {
+      const rate = 8000, n = rate * seconds, buf = new ArrayBuffer(44 + n), v = new DataView(buf);
+      const s = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+      s(0, 'RIFF'); v.setUint32(4, 36 + n, true); s(8, 'WAVE'); s(12, 'fmt ');
+      v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+      v.setUint32(24, rate, true); v.setUint32(28, rate, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true);
+      s(36, 'data'); v.setUint32(40, n, true);
+      for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
+      return URL.createObjectURL(new Blob([v], { type: 'audio/wav' }));
     }
   }
 
@@ -187,7 +295,7 @@
         btn.setAttribute('aria-label', label);
         btn.title = label;
       }
-      if (meta) meta.setAttribute('content', mode === 'light' ? '#f7f9fb' : '#09090b');
+      if (meta) meta.setAttribute('content', mode === 'light' ? '#faf8f4' : '#09090b');
     }
 
     if (btn) btn.addEventListener('click', () => {
@@ -405,8 +513,8 @@
     const saveBtn = $('#ibSave');
     if (saveBtn) saveBtn.addEventListener('click', () => {
       save();
-      saveBtn.textContent = 'تم الحفظ ✓';
-      setTimeout(() => { saveBtn.textContent = 'حفظ القياس'; }, 1600);
+      saveBtn.textContent = T('تم الحفظ ✓', 'Saved ✓');
+      setTimeout(() => { saveBtn.textContent = T('حفظ القياس', 'Save scan'); }, 1600);
     });
     const resetBtn = $('#ibReset');
     if (resetBtn) resetBtn.addEventListener('click', () => {
@@ -464,8 +572,15 @@
     if (!p) return;
     if (p.name) {
       $$('[data-profile-name]').forEach(e => e.textContent = p.name);
-      const eyebrow = $('.hero-copy .eyebrow');
-      if (eyebrow) eyebrow.textContent = 'أهلاً ' + p.name.split(' ')[0] + ' · خطة 3 أشهر';
+      const first = p.name.split(' ')[0];
+      const greet = $('[data-greet]');
+      if (greet) {
+        const hour = new Date().getHours();
+        const ar = hour < 12 ? 'صباح الخير' : hour < 18 ? 'أهلاً' : 'مساء الخير';
+        const en = hour < 12 ? 'Good morning' : hour < 18 ? 'Welcome' : 'Good evening';
+        greet.innerHTML = T(ar, en) + T('، ', ', ') + first + ' <small>' + T('جاهز للحصة؟', 'ready to train?') + '</small>';
+        greet.hidden = false;
+      }
     }
     if (p.age)    $$('[data-profile-age]').forEach(e => e.textContent = p.age);
     if (p.weight) $$('[data-profile-weight]').forEach(e => e.textContent = fmtW(parseFloat(p.weight)));
@@ -502,7 +617,8 @@
       return {
         name: el.name.value.trim(), gender: el.gender.value,
         age: el.age.value, height: el.height.value, weight: el.weight.value,
-        target: el.target.value, activity: el.activity.value
+        target: el.target.value, activity: el.activity.value,
+        days: (store.get(PROFILE_KEY, {}).days || [6, 0, 2, 3])   // preserve schedule
       };
     }
 
@@ -511,17 +627,17 @@
       const bmiEl = $('#pfBmi'), catEl = $('#pfBmiCat');
       if (!t) {
         $('#pfBmi').textContent = $('#pfCalories').textContent = $('#pfProtein').textContent = $('#pfWater').textContent = '—';
-        $('#pfTdee').textContent = 'احتياجك اليومي: —';
-        catEl.textContent = 'أدخل الطول والوزن والعمر';
+        $('#pfTdee').textContent = T('احتياجك اليومي: —', 'Maintenance: —');
+        catEl.textContent = T('أدخل الطول والوزن والعمر', 'Enter height, weight & age');
         return;
       }
       bmiEl.textContent = t.bmi;
       catEl.textContent =
-        t.bmi < 18.5 ? 'نحافة — تحتاج فائض سعرات' :
-        t.bmi < 25   ? 'ضمن النطاق الطبيعي' :
-        t.bmi < 30   ? 'زيادة وزن — العجز مناسب' : 'سمنة — التزم بالعجز';
+        t.bmi < 18.5 ? T('نحافة — تحتاج فائض سعرات', 'Underweight — needs a surplus') :
+        t.bmi < 25   ? T('ضمن النطاق الطبيعي', 'Within normal range') :
+        t.bmi < 30   ? T('زيادة وزن — العجز مناسب', 'Overweight — deficit suits you') : T('سمنة — التزم بالعجز', 'Obese — stick to the deficit');
       $('#pfCalories').textContent = t.calories;
-      $('#pfTdee').textContent = 'احتياجك اليومي: ' + t.tdee + ' سعرة';
+      $('#pfTdee').textContent = T('احتياجك اليومي: ', 'Maintenance: ') + t.tdee + T(' سعرة', ' kcal');
       $('#pfProtein').textContent = t.protein;
       $('#pfWater').textContent = t.water;
     }
@@ -548,8 +664,8 @@
         renderWeightLog();
       }
       applyProfile();
-      saveBtn.textContent = 'تم الحفظ ✓';
-      setTimeout(() => { saveBtn.textContent = 'حفظ البيانات'; }, 1600);
+      saveBtn.textContent = T('تم الحفظ ✓', 'Saved ✓');
+      setTimeout(() => { saveBtn.textContent = T('حفظ البيانات', 'Save'); }, 1600);
     });
 
     const nBtn = $('#pfNotify');
@@ -558,7 +674,7 @@
       else {
         const paintNotify = () => {
           const on = store.get('weighNotify', false) && Notification.permission === 'granted';
-          nBtn.textContent = on ? 'تذكير القياس مفعّل ✓' : 'تفعيل تذكير القياس';
+          nBtn.textContent = on ? T('تذكير القياس مفعّل ✓', 'Reminder on ✓') : T('تفعيل تذكير القياس', 'Enable weigh-in reminder');
         };
         paintNotify();
         nBtn.addEventListener('click', () => {
@@ -614,7 +730,7 @@
     const log = store.get('weightlog:body', []);
     const p = store.get(PROFILE_KEY, {});
     if (!log.length) {
-      wrap.innerHTML = '<p class="pf-empty">اضغط حفظ البيانات وسيُسجَّل وزن اليوم تلقائياً، ومع القياس الأسبوعي يظهر المنحنى هنا.</p>';
+      wrap.innerHTML = '<p class="pf-empty">' + T('اضغط حفظ البيانات وسيُسجَّل وزن اليوم تلقائياً، ومع القياس الأسبوعي يظهر المنحنى هنا.', 'Tap Save to log today\'s weight automatically — the curve appears with your weekly weigh-ins.') + '</p>';
       statsEl.innerHTML = '';
       return;
     }
@@ -623,12 +739,12 @@
     const diff = +(lastW - first).toFixed(1);
     const toGo = target != null ? +(lastW - target).toFixed(1) : null;
     statsEl.innerHTML =
-      '<div><b>' + fmtW(first) + '</b><span>وزن البداية</span></div>' +
-      '<div><b>' + fmtW(lastW) + '</b><span>الوزن الحالي</span></div>' +
-      '<div><b>' + (diff > 0 ? '+' : '') + diff + '</b><span>التغيّر الكلي</span></div>' +
-      (toGo != null ? '<div><b>' + fmtW(Math.abs(toGo)) + '</b><span>' + (toGo > 0 ? 'متبقٍ للهدف' : 'تحت الهدف') + '</span></div>' : '');
+      '<div><b>' + fmtW(first) + '</b><span>' + T('وزن البداية', 'Starting') + '</span></div>' +
+      '<div><b>' + fmtW(lastW) + '</b><span>' + T('الوزن الحالي', 'Current') + '</span></div>' +
+      '<div><b>' + (diff > 0 ? '+' : '') + diff + '</b><span>' + T('التغيّر الكلي', 'Total change') + '</span></div>' +
+      (toGo != null ? '<div><b>' + fmtW(Math.abs(toGo)) + '</b><span>' + (toGo > 0 ? T('متبقٍ للهدف', 'To goal') : T('تحت الهدف', 'Below goal')) + '</span></div>' : '');
     if (log.length < 2) {
-      wrap.innerHTML = '<p class="pf-empty">أضف قياساً جديداً الأسبوع القادم ليظهر منحنى التقدم.</p>';
+      wrap.innerHTML = '<p class="pf-empty">' + T('أضف قياساً جديداً الأسبوع القادم ليظهر منحنى التقدم.', 'Add another weigh-in next week to see the progress curve.') + '</p>';
       return;
     }
     const W = 600, H = 200, PL = 46, PR = 14, PT = 16, PB = 26;
@@ -672,11 +788,11 @@
       b.innerHTML =
         '<div class="rb-in">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M6 7l1.5 1.5M18 7l-1.5 1.5"/><path d="M4 21h16M7 21a5 5 0 0 1 10 0"/><circle cx="12" cy="13" r="3"/></svg>' +
-        '<div class="rb-txt"><b>وقت قياس الوزن</b><span>' +
-        (last ? 'مرّ ' + days + ' ' + (days > 10 ? 'يوماً' : 'أيام') + ' منذ آخر تسجيل' : 'لم تسجّل وزنك بعد') +
+        '<div class="rb-txt"><b>' + T('وقت قياس الوزن', 'Time to weigh in') + '</b><span>' +
+        (last ? T('مرّ ' + days + ' ' + (days > 10 ? 'يوماً' : 'أيام') + ' منذ آخر تسجيل', days + ' days since your last entry') : T('لم تسجّل وزنك بعد', 'No weight logged yet')) +
         '</span></div>' +
-        '<a class="btn btn-gold" href="profile.html">سجّل الآن</a>' +
-        '<button class="rb-close" type="button" aria-label="إغلاق">×</button>' +
+        '<a class="btn btn-gold" href="profile.html">' + T('سجّل الآن', 'Log now') + '</a>' +
+        '<button class="rb-close" type="button" aria-label="' + T('إغلاق', 'Close') + '">×</button>' +
         '</div>';
       const main = $('main');
       if (main) main.insertBefore(b, main.firstChild);
@@ -694,31 +810,94 @@
 
   /* ----- today's session + per-day progress (home) ---------------------- */
   function initToday() {
-    const days = $$('#days .day-card');
-    if (!days.length) return;
-    const map = { 6: 'push', 0: 'pull', 2: 'upper', 3: 'legs' };
-    const todayPage = map[new Date().getDay()];
+    // hero tag: number of training days / week
+    const tag = $('[data-week-tag]');
+    if (tag) tag.textContent = scheduleDays().length + T(' حصص / أسبوع', ' sessions / week');
 
-    days.forEach(card => {
+    const cards = $$('#days .day-card');
+    if (!cards.length) return;
+    const todaySession = sessionOnDay(new Date().getDay());
+
+    cards.forEach((card, i) => {
+      // relabel weekday from the user's schedule (cards are in SESSIONS order)
+      const wd = dayForSession(i);
+      const when = $('.when', card);
+      if (when && wd != null) when.textContent = wdName(wd) + ' · ' + SESSIONS[i].en;
+
       const page = (card.getAttribute('href') || '').replace('.html', '');
       const st = store.get('sets:' + page, {});
       const done = Object.values(st).reduce((n, a) => n + (a ? a.filter(Boolean).length : 0), 0);
       if (done > 0) {
         const chip = document.createElement('div');
         chip.className = 'day-progress';
-        chip.textContent = done + ' مجموعة منجزة';
+        chip.textContent = done + ' ' + T('مجموعة منجزة', 'sets done');
         card.appendChild(chip);
       }
-      if (page === todayPage) {
+      if (i === todaySession) {
         card.classList.add('today');
         const badge = document.createElement('span');
         badge.className = 'today-badge';
-        badge.textContent = 'حصة اليوم';
+        badge.textContent = T('حصة اليوم', 'Today');
         card.appendChild(badge);
         const cta = $('.hero-cta .btn-gold');
-        if (cta && cta.getAttribute('href')) cta.setAttribute('href', page + '.html');
+        if (cta) cta.setAttribute('href', SESSIONS[i].page);
       }
     });
+  }
+
+  /* ----- training-days picker (profile) --------------------------------- */
+  function initSchedule() {
+    const wrap = $('#pfDays');
+    if (!wrap) return;
+    let sel = (store.get(PROFILE_KEY, {}).days || [6, 0, 2, 3]).slice();
+
+    WEEK_ORDER.forEach(d => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'day-chip' + (sel.includes(d) ? ' on' : '');
+      chip.textContent = wdName(d);
+      chip.setAttribute('aria-pressed', sel.includes(d) ? 'true' : 'false');
+      chip.addEventListener('click', () => {
+        const on = chip.classList.toggle('on');
+        chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+        if (on) { if (!sel.includes(d)) sel.push(d); }
+        else sel = sel.filter(x => x !== d);
+        const p = store.get(PROFILE_KEY, {});
+        p.days = sel.slice();
+        store.set(PROFILE_KEY, p);
+        paintHint();
+      });
+      wrap.appendChild(chip);
+    });
+
+    const hint = $('#pfDaysHint');
+    function paintHint() {
+      if (!hint) return;
+      const n = sel.length;
+      if (!n) { hint.textContent = T('اختر يوماً واحداً على الأقل.', 'Pick at least one day.'); return; }
+      const order = sel.slice().sort((a, b) => WEEK_ORDER.indexOf(a) - WEEK_ORDER.indexOf(b));
+      const parts = order.map((d, i) => wdName(d) + ' → ' + T(SESSIONS[i % 4].ar, SESSIONS[i % 4].en));
+      hint.textContent = n + T(' أيام: ', ' days: ') + parts.join(T('، ', ', '));
+    }
+    paintHint();
+  }
+
+  /* ----- weekly split table follows the schedule (info page) ------------ */
+  function initInfoWeek() {
+    const split = $('.week-split');
+    if (!split) return;
+    const days = scheduleDays();
+    let html = '';
+    WEEK_ORDER.forEach(d => {
+      const si = days.indexOf(d);
+      if (si >= 0) {
+        const s = SESSIONS[si % SESSIONS.length];
+        html += '<div class="day on"><span>' + wdName(d) + '</span><b>' + T(s.ar + ' · ' + s.en, s.en) + '</b></div>';
+      } else {
+        html += '<div class="day off"><span>' + wdName(d) + '</span><b>' + T('راحة', 'Rest') + '</b></div>';
+      }
+    });
+    split.innerHTML = html;
   }
 
   /* ----- KPI count-up on reveal ----------------------------------------- */
@@ -753,6 +932,56 @@
       const href = a.getAttribute('href');
       if (href === here) a.classList.add('active');
     });
+  }
+
+  /* ----- language toggle (ع / EN) --------------------------------------- */
+  function initLangToggle() {
+    const navIn = $('.nav-in');
+    if (!navIn) return;
+    const lang = window.APP_LANG || 'ar';
+    const btn = document.createElement('button');
+    btn.className = 'lang-toggle';
+    btn.type = 'button';
+    btn.textContent = lang === 'en' ? 'ع' : 'EN';
+    btn.setAttribute('aria-label', lang === 'en' ? 'التبديل إلى العربية' : 'Switch to English');
+    btn.title = btn.getAttribute('aria-label');
+    btn.addEventListener('click', () => {
+      const next = (window.APP_LANG || 'ar') === 'en' ? 'ar' : 'en';
+      store.set('lang', next);
+      location.reload();
+    });
+    const themeBtn = $('#themeToggle', navIn);
+    navIn.insertBefore(btn, themeBtn || null);
+  }
+
+  /* ----- training schedule (user-selectable days) ----------------------- */
+  const SESSIONS = [
+    { key: 'push',  page: 'push.html',  ar: 'دفع',  en: 'Push',  ic: '<rect x="4" y="9" width="16" height="6" rx="2"/>' },
+    { key: 'pull',  page: 'pull.html',  ar: 'سحب',  en: 'Pull' },
+    { key: 'upper', page: 'upper.html', ar: 'علوي', en: 'Upper' },
+    { key: 'legs',  page: 'legs.html',  ar: 'أرجل', en: 'Legs' }
+  ];
+  // getDay(): 0=Sun … 6=Sat. Training week starts Saturday.
+  const WEEK_ORDER = [6, 0, 1, 2, 3, 4, 5];              // Sat→Fri
+  const WD_AR = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+  const WD_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const wdName = d => T(WD_AR[d], WD_EN[d]);
+
+  function scheduleDays() {
+    const p = store.get(PROFILE_KEY, {});
+    const raw = (p.days && p.days.length) ? p.days : [6, 0, 2, 3];
+    return raw.slice().sort((a, b) => WEEK_ORDER.indexOf(a) - WEEK_ORDER.indexOf(b));
+  }
+  // session index hosted on a given weekday (or -1)
+  function sessionOnDay(day) {
+    const days = scheduleDays();
+    const i = days.indexOf(day);
+    return i < 0 ? -1 : i % SESSIONS.length;
+  }
+  // weekday assigned to a given session index
+  function dayForSession(idx) {
+    const days = scheduleDays();
+    return days.length ? days[idx % days.length] : null;
   }
 
   /* ----- service worker ------------------------------------------------- */
@@ -792,6 +1021,6 @@
 
   /* ----- boot ----------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', () => {
-    initTheme(); initNav(); initMobileNav(); initReveal(); initActivityRing(); initTracker(); initWeights(); initPreviews(); initInbody(); initTimer(); initProfile(); applyProfile(); initWeighReminder(); initToday(); initCountUp(); initSW();
+    initTheme(); initLangToggle(); initNav(); initMobileNav(); initReveal(); initActivityRing(); initTracker(); initWeights(); initPreviews(); initInbody(); initTimer(); initProfile(); initSchedule(); applyProfile(); initWeighReminder(); initToday(); initInfoWeek(); initCountUp(); initSW();
   });
 })();

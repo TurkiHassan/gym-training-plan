@@ -2,13 +2,17 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="خطة التدريب">
+  <meta name="format-detection" content="telephone=no">
   <title>قياس InBody | خطة التدريب</title>
   <meta name="description" content="تقرير InBody: الوزن، الكتلة العضلية، نسبة الدهون، ونقاط القياس — إدخال يدوي ومتابعة شهرية.">
   <meta name="theme-color" content="#09090b">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
-  <script>try{var t=JSON.parse(localStorage.getItem('theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+  <script>try{var t=JSON.parse(localStorage.getItem('theme'));if(t)document.documentElement.dataset.theme=t;var L=JSON.parse(localStorage.getItem('lang'));if(L==='en'){document.documentElement.lang='en';document.documentElement.dir='ltr';}}catch(e){}</script>
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body data-day="inbody">
@@ -38,7 +42,7 @@
       <div data-reveal>
         <p class="eyebrow">Monthly InBody Update</p>
         <h1 class="display">قياس InBody</h1>
-        <p class="lead">سجّل قياسك يدوياً وتابع تطوّرك — اضغط على أي رقم لتعديله ثم احفظ. آخر تحديث: <span data-ib-date>—</span>.</p>
+        <p class="lead">اضغط على أي رقم لتعديله ثم احفظ — آخر تحديث: <span data-ib-date>—</span>.</p>
         <div class="ib-hint">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
           الأرقام المُخطّطة قابلة للتعديل — اضغط عليها وأدخل قيمتك.
@@ -132,6 +136,7 @@
     </div>
   </footer>
 
+  <script src="assets/i18n.js"></script>
   <script src="assets/app.js" defer></script>
 
   <!-- Bottom Navigation Bar (Mobile) -->
