@@ -29,6 +29,8 @@
   --shadow-sm: 0 10px 30px rgba(0,0,0,.55);
   --radius:  20px;
   --radius-lg: 28px;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --duration-ui: 200ms;
   /* glow — soft gold sheen */
   --glow:    0 0 22px rgba(217,180,92,.35);
   --glow-sm: 0 0 12px rgba(217,180,92,.22);
@@ -118,6 +120,9 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
 
 body {
   margin: 0;
@@ -332,11 +337,12 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
   flex: 1; height: 30px; border-radius: 8px; border: 1px solid var(--line-2);
   background: var(--fill-soft); color: var(--muted); font-size: 13px; font-weight: 700;
   font-family: var(--numeric);
-  display: grid; place-items: center; cursor: pointer; transition: .15s; user-select: none;
+  display: grid; place-items: center; cursor: pointer; user-select: none;
+  transition: transform 160ms var(--ease-out), border-color 160ms var(--ease-out), color 160ms var(--ease-out), background-color 160ms var(--ease-out);
 }
-@keyframes setPop { 0% { transform: scale(1); } 45% { transform: scale(1.12); } 100% { transform: scale(1); } }
-.set-dot.pop { animation: setPop .32s cubic-bezier(.34,1.56,.64,1); }
-@media (prefers-reduced-motion: reduce) { .set-dot.pop { animation: none; } }
+@media (hover: hover) and (pointer: fine) {
+  .set-dot:active { transform: scale(0.97); }
+}
 .set-dot:hover { border-color: var(--gold); color: var(--cream); }
 .set-dot.on { background: linear-gradient(145deg, var(--gold-2), var(--gold)); color: #1c1405; border-color: transparent; }
 .ex-side small { color: var(--muted); font-size: 11px; }
@@ -411,7 +417,12 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
   border: 1px solid var(--line); border-radius: 999px;
 }
 .progress { flex: 1; height: 10px; border-radius: 999px; background: var(--fill); overflow: hidden; border: 1px solid var(--line); }
-.progress > i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--gold), var(--gold-2)); transition: width .35s ease; }
+.progress > i {
+  display: block; height: 100%; width: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-2));
+  transform: scaleX(0); transform-origin: right center;
+  transition: transform var(--duration-ui) var(--ease-out);
+}
 .progress-label { font-size: 14px; color: var(--muted); white-space: nowrap; }
 .progress-label b { color: var(--gold-2); }
 
@@ -455,9 +466,16 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
   position: fixed; inset-inline-end: 22px; bottom: 22px; z-index: 60;
   width: 230px; background: var(--timer-bg); backdrop-filter: blur(12px);
   border: 1px solid var(--line-2); border-radius: 18px; box-shadow: var(--shadow);
-  padding: 16px; transform: translateY(140%); transition: transform .35s cubic-bezier(.2,.8,.2,1);
+  padding: 16px;
+  opacity: 0; pointer-events: none; visibility: hidden;
+  transform: translateY(140%);
+  transition: transform 180ms var(--ease-out), opacity 180ms var(--ease-out), visibility 0s linear 180ms;
 }
-.timer.open { transform: translateY(0); }
+.timer.open {
+  opacity: 1; pointer-events: auto; visibility: visible;
+  transform: translateY(0);
+  transition: transform 250ms var(--ease-out), opacity 250ms var(--ease-out), visibility 0s linear 0s;
+}
 .timer .t-head { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 12px; }
 .timer .t-time { font-family: var(--serif); font-size: 46px; text-align: center; color: var(--cream); margin: 4px 0 10px; letter-spacing: .02em; }
 .timer .t-time.warn { color: var(--gold-2); }
@@ -485,10 +503,6 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
 .footer .contact { display: flex; gap: 20px; flex-wrap: wrap; }
 .footer .contact div span { display: block; color: var(--gold); font-size: 12px; letter-spacing: .08em; }
 .footer .contact div { color: var(--text); font-size: 15px; }
-
-/* ---------- Reveal on scroll --------------------------------------------- */
-[data-reveal] { opacity: 0; transform: translateY(18px); transition: opacity .6s, transform .6s; }
-[data-reveal].in { opacity: 1; transform: none; }
 
 /* ---------- Feature cards (home → instructors / nutrition) --------------- */
 .feature {
@@ -717,10 +731,14 @@ h1, h2, h3 { color: var(--cream); margin: 0; line-height: 1.12; font-weight: 700
     background: var(--nav-panel); backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--line); box-shadow: var(--shadow);
     padding: 8px 18px 14px; z-index: 45;
-    max-height: 0; overflow: hidden; opacity: 0; pointer-events: none;
-    transition: max-height .32s ease, opacity .24s, padding .32s;
+    overflow: hidden; opacity: 0; pointer-events: none; visibility: hidden;
+    transform: translateY(-8px);
+    transition: transform var(--duration-ui) var(--ease-out), opacity var(--duration-ui) var(--ease-out), visibility 0s linear var(--duration-ui);
   }
-  .nav-links.open { max-height: 78vh; opacity: 1; pointer-events: auto; }
+  .nav-links.open {
+    opacity: 1; pointer-events: auto; visibility: visible;
+    transform: translateY(0); transition-delay: 0s;
+  }
   .nav-links a { padding: 12px 14px; font-size: 15px; border-radius: 12px; }
   .nav-in { padding: 10px 0; }
   .brand small { font-size: 10px; }
@@ -1034,7 +1052,7 @@ html[dir="ltr"] .bottom-nav { direction: ltr; }
 /* ---------- Print --------------------------------------------------------- */
 @media print {
   body { background: #fff; color: #111; }
-  .nav, .timer, .timer-fab, .hero-cta, [data-reveal] { opacity: 1 !important; transform: none !important; }
+  .nav, .timer, .timer-fab, .hero-cta { opacity: 1 !important; transform: none !important; }
   .timer, .timer-fab, .theme-toggle, .ex-preview { display: none !important; }
   .ex { grid-template-columns: auto 1fr; }
   .ex-body { grid-column: 2; }
@@ -1087,7 +1105,7 @@ html[dir="ltr"] .bottom-nav { direction: ltr; }
 .ar-fill  {
   stroke: var(--gold);
   filter: drop-shadow(0 0 8px rgba(217,180,92,.55));
-  transition: stroke-dashoffset .65s cubic-bezier(.4,0,.2,1);
+  transition: stroke-dashoffset var(--duration-ui) var(--ease-out);
 }
 .ar-pct {
   font-family: 'Barlow Condensed', sans-serif;
@@ -1108,4 +1126,34 @@ html[dir="ltr"] .bottom-nav { direction: ltr; }
 [data-theme="light"] .set-dot.on { box-shadow: none; }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) .btn-gold { box-shadow: 0 10px 24px rgba(138,106,28,.22); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .set-dot {
+    transition: border-color 160ms var(--ease-out), color 160ms var(--ease-out), background-color 160ms var(--ease-out);
+  }
+  .set-dot:active { transform: none; }
+
+  .progress > i,
+  .ar-fill { transition: none; }
+
+  .timer {
+    transform: none;
+    transition: opacity 160ms var(--ease-out), visibility 0s linear 160ms;
+  }
+  .timer.open {
+    transform: none;
+    transition: opacity 160ms var(--ease-out), visibility 0s linear 0s;
+  }
+}
+
+@media (max-width: 620px) and (prefers-reduced-motion: reduce) {
+  .nav-links {
+    transform: none;
+    transition: opacity 160ms var(--ease-out), visibility 0s linear 160ms;
+  }
+  .nav-links.open {
+    transform: none;
+    transition: opacity 160ms var(--ease-out), visibility 0s linear 0s;
+  }
 }
