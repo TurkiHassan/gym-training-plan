@@ -2,7 +2,6 @@
    3-Month Training Plan — interactivity
    - Per-exercise set tracking (localStorage, reset weekly-friendly per page)
    - Floating rest timer with presets + beep
-   - Scroll reveal
    - Service worker registration (offline / installable)
    ========================================================================== */
 (function () {
@@ -20,16 +19,6 @@
 
   /* shared ring updater — set by initActivityRing, called from initTracker */
   let _ringUpdate = null;
-
-  /* ----- scroll reveal -------------------------------------------------- */
-  function initReveal() {
-    const els = $$('[data-reveal]');
-    if (!('IntersectionObserver' in window) || !els.length) { els.forEach(e => e.classList.add('in')); return; }
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
-    }, { threshold: .12 });
-    els.forEach((e, i) => { e.style.transitionDelay = Math.min(i * 60, 360) + 'ms'; io.observe(e); });
-  }
 
   /* ----- set tracker ---------------------------------------------------- */
   function initTracker() {
@@ -55,7 +44,7 @@
       });
       const t = totalSets(), d = doneSets();
       const pct = t ? Math.round(d / t * 100) : 0;
-      if (bar)   bar.style.width = pct + '%';
+      if (bar)   bar.style.transform = `scaleX(${pct / 100})`;
       if (label) label.innerHTML = `<b>${d}/${t}</b> مجموعة • ${pct}%`;
       if (_ringUpdate) _ringUpdate(d, t);
     }
@@ -67,9 +56,11 @@
         if (saved[di]) dot.classList.add('on');
         dot.setAttribute('role', 'button');
         dot.setAttribute('tabindex', '0');
+        dot.setAttribute('aria-label', 'المجموعة ' + dot.textContent.trim());
+        dot.setAttribute('aria-pressed', dot.classList.contains('on') ? 'true' : 'false');
         const toggle = () => {
           dot.classList.toggle('on');
-          dot.classList.remove('pop'); void dot.offsetWidth; dot.classList.add('pop');
+          dot.setAttribute('aria-pressed', dot.classList.contains('on') ? 'true' : 'false');
           state[ei] = dots.map(x => x.classList.contains('on'));
           store.set(key, state);
           refresh();
@@ -85,7 +76,10 @@
     if (resetBtn) resetBtn.addEventListener('click', () => {
       state = {};
       store.set(key, state);
-      $$('.set-dot', list).forEach(d => d.classList.remove('on'));
+      $$('.set-dot', list).forEach(d => {
+        d.classList.remove('on');
+        d.setAttribute('aria-pressed', 'false');
+      });
       refresh();
     });
 
@@ -101,6 +95,7 @@
     let deadline = 0;          // epoch ms when it ends
     let paused = total;        // seconds left while paused (null = running)
     let raf = null;
+    let openedFromFab = false;
 
     const fab = document.createElement('button');
     fab.className = 'timer-fab'; fab.title = T('مؤقّت الراحة', 'Rest timer');
@@ -109,6 +104,10 @@
 
     const box = document.createElement('div');
     box.className = 'timer';
+    box.setAttribute('role', 'dialog');
+    box.setAttribute('aria-label', 'مؤقّت الراحة');
+    box.setAttribute('aria-hidden', 'true');
+    box.inert = true;
     box.innerHTML =
       '<div class="t-head"><span>' + T('مؤقّت الراحة', 'Rest timer') + '</span>' +
         '<button class="t-close" aria-label="' + T('إغلاق', 'Close') + '">×</button></div>' +
@@ -122,6 +121,7 @@
     const elTime  = $('#tTime', box);
     const elTog   = $('#tToggle', box);
     const elReset = $('#tReset', box);
+    const closeButton = $('.t-close', box);
 
     // silent looping audio → keeps a Media Session alive so the countdown
     // shows on the iPhone lock screen while the phone is locked.
@@ -180,11 +180,39 @@
       beep(); vibrate(); notify();
       if (audioEl) audioEl.pause();
     }
-    function open()  { box.classList.add('open'); fab.style.display = 'none'; }
-    function close() { box.classList.remove('open'); fab.style.display = 'grid'; }
+    function open(focusRequested = false) {
+      openedFromFab = focusRequested;
+      box.inert = false;
+      box.setAttribute('aria-hidden', 'false');
+      box.classList.add('open');
+      fab.style.display = 'none';
+      if (focusRequested) {
+        requestAnimationFrame(() => {
+          if (box.classList.contains('open')) closeButton.focus();
+        });
+      }
+    }
+    function close() {
+      stop();
+      const restoreFocus = openedFromFab;
+      const focusInsideTimer = box.contains(document.activeElement);
+      openedFromFab = false;
+      fab.style.display = 'grid';
+      if (restoreFocus || focusInsideTimer) fab.focus();
+      box.classList.remove('open');
+      box.inert = true;
+      box.setAttribute('aria-hidden', 'true');
+    }
 
-    fab.addEventListener('click', open);
-    $('.t-close', box).addEventListener('click', () => { pause(); close(); });
+    fab.addEventListener('click', () => open(true));
+    closeButton.addEventListener('click', () => { pause(); close(); });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && box.classList.contains('open')) {
+        e.preventDefault();
+        pause();
+        close();
+      }
+    });
     elTog.addEventListener('click', () => (paused == null ? pause() : run()));
     elReset.addEventListener('click', () => resetTo(total));
     $$('.t-presets button', box).forEach(b => b.addEventListener('click', () => {
@@ -201,7 +229,7 @@
 
     // public API used by the tracker
     window.RestTimer = {
-      start() { open(); total = store.get('restDefault', DEFAULT); run(); }
+      start() { open(false); total = store.get('restDefault', DEFAULT); run(); }
     };
 
     /* ---- Media Session: lock-screen widget with remaining time ---- */
@@ -408,13 +436,25 @@
   function initPreviews() {
     if (!$('#exlist')) return;
     const day = document.body.dataset.day || location.pathname.split('/').pop().replace('.html', '');
+    const reduceMotion = Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const previewStates = new WeakMap();
+    const previewObserver = !reduceMotion && 'IntersectionObserver' in window
+      ? new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const state = previewStates.get(entry.target);
+          if (!state) return;
+          if (entry.isIntersecting) state.showAnimation();
+          else state.showStatic();
+        });
+      }, { threshold: .01 })
+      : null;
 
     $$('#exlist .ex').forEach((ex, i) => {
       const media     = EXERCISE_MEDIA[day + '-' + (i + 1)] || {};
-      const animSrc   = media.animation || null;  // local GIF (primary)
-      const thumbSrc  = media.thumbnail || null;  // local JPG still (fast placeholder)
-      const sourceSrc = media.source    || null;  // YouTube thumbnail (network fallback)
-      const firstSrc  = animSrc || thumbSrc || sourceSrc;
+      const animSrc   = media.animation || null;
+      const thumbSrc  = media.thumbnail || null;
+      const sourceSrc = media.source    || null;
+      const staticSources = [thumbSrc, sourceSrc].filter((src, index, sources) => src && sources.indexOf(src) === index);
       const alt       = media.alt || (ex.querySelector('h3') || {}).textContent || '';
 
       const wrap = document.createElement('div');
@@ -427,30 +467,77 @@
       fallback.className = 'ex-preview-fallback';
       fallback.innerHTML = _previewIcon() + '<span>لا صورة</span>';
 
-      if (firstSrc) {
+      if (staticSources.length || (!reduceMotion && animSrc)) {
         const img = document.createElement('img');
         img.className = 'ex-preview-img';
         img.alt = alt;
         img.setAttribute('loading', 'lazy');
         img.setAttribute('decoding', 'async');
-        // stage: 0=GIF 1=local JPG 2=YouTube 3=give up
-        let stage = animSrc ? 0 : (thumbSrc ? 1 : 2);
+        let staticIndex = 0;
+        let currentKind = null;
+        let observed = false;
+        let animationFailed = false;
+
+        function showFallback() {
+          if (previewObserver && observed) previewObserver.unobserve(img);
+          img.classList.add('hidden');
+          skeleton.classList.add('hidden');
+          fallback.classList.add('visible');
+        }
+
+        function setSource(src, kind) {
+          if (!src) return;
+          const resolved = new URL(src, document.baseURI).href;
+          if (img.src === resolved && currentKind === kind) return;
+          currentKind = kind;
+          img.src = src;
+        }
+
+        function showStatic(restart = false) {
+          if (restart) staticIndex = 0;
+          const staticSrc = staticSources[staticIndex];
+          if (staticSrc) setSource(staticSrc, 'static');
+          else showFallback();
+        }
+
+        function showAnimation() {
+          if (!reduceMotion && animSrc && !animationFailed) setSource(animSrc, 'animation');
+          else showStatic();
+        }
+
+        previewStates.set(img, { showAnimation, showStatic });
 
         img.addEventListener('load', () => {
           img.classList.add('loaded');
           skeleton.classList.add('hidden');
+          if (currentKind !== 'static') return;
+          if (previewObserver && !observed) {
+            observed = true;
+            previewObserver.observe(img);
+          } else if (!reduceMotion && !previewObserver && animSrc && !animationFailed) {
+            showAnimation();
+          }
         });
         img.addEventListener('error', () => {
-          stage++;
-          if (stage === 1 && thumbSrc)  { img.src = thumbSrc;  return; }
-          if (stage === 2 && sourceSrc) { img.src = sourceSrc; return; }
-          img.classList.add('hidden');
-          skeleton.classList.add('hidden');
-          fallback.classList.add('visible');
+          if (currentKind === 'animation') {
+            animationFailed = true;
+            if (staticSources.length) showStatic(true);
+            else showFallback();
+            return;
+          }
+          staticIndex++;
+          if (staticIndex < staticSources.length) {
+            showStatic();
+          } else if (!reduceMotion && animSrc && !animationFailed) {
+            showAnimation();
+          } else {
+            showFallback();
+          }
         });
 
-        img.src = firstSrc;
         wrap.append(skeleton, img, fallback);
+        if (staticSources.length) showStatic();
+        else showAnimation();
       } else {
         fallback.classList.add('visible');
         wrap.append(fallback);
@@ -1021,6 +1108,6 @@
 
   /* ----- boot ----------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', () => {
-    initTheme(); initLangToggle(); initNav(); initMobileNav(); initReveal(); initActivityRing(); initTracker(); initWeights(); initPreviews(); initInbody(); initTimer(); initProfile(); initSchedule(); applyProfile(); initWeighReminder(); initToday(); initInfoWeek(); initCountUp(); initSW();
+    initTheme(); initLangToggle(); initNav(); initMobileNav(); initActivityRing(); initTracker(); initWeights(); initPreviews(); initInbody(); initTimer(); initProfile(); initSchedule(); applyProfile(); initWeighReminder(); initToday(); initInfoWeek(); initCountUp(); initSW();
   });
 })();

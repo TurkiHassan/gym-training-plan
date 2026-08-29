@@ -7,3 +7,5 @@ legacy/
 # nested project folders (not part of this repo)
 GYM-PRO/
 GYM-PROF/
+.vercel
+.env*
